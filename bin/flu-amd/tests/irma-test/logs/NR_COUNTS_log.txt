@@ -1,0 +1,12 @@
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/MATCH/R1.match:2000
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/MATCH/R1.nomatch:0
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/MATCH/R1.chim:0
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/R0.fa:2000
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/A_HA_H1.fa:250
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/A_MP.fa:250
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/A_NA_N1.fa:250
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/A_NP.fa:250
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/A_NS.fa:250
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/A_PA.fa:250
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/A_PB1.fa:250
+/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/A_PB2.fa:250

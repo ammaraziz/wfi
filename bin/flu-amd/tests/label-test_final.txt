@@ -1,0 +1,3 @@
+                                                                    VIRUS STRAIN	               CLADE
+                                    EF154979|A/quail/Shantou/21605/2005{G1_Asia}	             G1_Asia
+                                      GQ373074|A/chicken/Shandong/12/2008{Y280B}	               Y280B

@@ -1,0 +1,44 @@
+program_name	PROGRAM	Iterative Refinement Meta-Assembler (IRMA)
+program_version	VERSION	0.6.1
+last_git_commit_hash	LAST_COMMIT	af875be5d984a075a497d10c63cb0b9b9afef099
+sample	RUN	irma-test
+paired_end_reads	PAIRED	0
+data	LEFT	test2.fastq
+module_name	MODULE	FLU
+module_param_call	MODULE_CONFIG FLU
+parameter_file_name	PARAM_FILE_NAME	FLU
+parameter_file_version	PARAM_FILE_VERSION	1.0
+match_last_program	MATCH_PROG	BLAT (-oneOff=1 -minIdentity=80 -tileSize=10)
+align_last_program	ALIGN_PROG	SAM
+sort_last_program	SORT_PROG	BLAT
+assemble_last_program	ASSEM_PROG	SSW (-x 5 -m 2 -o 10 -e 1)
+match_programs	MATCH_PROGS	BLAT
+sort_programs	SORT_PROGS	BLAT
+align_programs	ALIGN_PROGS	SAM
+profiles	phmms	/home/migrau/apps/flu-amd/IRMA_RES/modules/FLU/profiles
+do_not_merge_read_pairs	NO_MERGE	0
+starting_reference	REF_SET	/home/migrau/apps/flu-amd/IRMA_RES/modules/FLU/reference/consensus.fasta
+grid_acceleration_on	GRID_ON	0
+working_directory	ppath	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ
+alternative_frequency	MIN_FA	1
+alternative_count	MIN_CA	20
+skip_reference_elongation	SKIP_E	1
+read_statistic	USE_MEDIAN	0
+minimum_statistic_quality	QUAL_THRESHOLD	30
+minimum_read_length	MIN_LEN	125
+interval_significance_level	SIG_LEVEL	0.999
+maximum_read_gathering_rounds	MAX_ROUNDS	5
+read_fasta_input	FASTA	0
+minimum_read_patterns	MIN_RP	1
+minimum_reads	MIN_RC	1
+minimum_insertion_edit_threshold	INS_T	0.25
+minimum_deletion_edit_threshold	DEL_T	0.60
+minimum_frequency_for_mixed_consensus_call	MIN_AMBIG	0.25
+auto_adjust_minimum_variant_frequency	AUTO_F	1
+minimum_deletion_variant_frequency	MIN_FD	0.005
+minimum_insertion_variant_frequency	MIN_FI	0.005
+minimum_variant_frequency	MIN_F	0.008
+minimum_variant_count	MIN_C	2
+minimum_variant_average_quality	MIN_AQ	24
+minimum_variant_depth	MIN_TCC	100
+minimum_confidence_not_sequencer_error	MIN_CONF	0.80
