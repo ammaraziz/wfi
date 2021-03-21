@@ -1,0 +1,12 @@
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/MATCH/R1.match:2000
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/MATCH/R1.nomatch:0
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/MATCH/R1.chim:0
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/R0.fa:2000
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/ASSEMBLY/A_HA_H1.fa:250
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/ASSEMBLY/A_MP.fa:250
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/ASSEMBLY/A_NA_N1.fa:250
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/ASSEMBLY/A_NP.fa:250
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/ASSEMBLY/A_NS.fa:250
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/ASSEMBLY/A_PA.fa:250
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/ASSEMBLY/A_PB1.fa:250
+/tmp/aaziz/IRMAv0.9.3/irma-test-IUSHO6KKs5o6kLxutGMooqWNJTUlbSPG/ASSEMBLY/A_PB2.fa:250

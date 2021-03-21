@@ -1,0 +1,33 @@
+LABEL, Lineage Assignment by Extended Learning, version 0.6.0
+IRMA, Iterative Refinement Meta-Assembler, version 0.9.2
+
+HARDWARE.
+We recommend a single multi-core machine with no fewer than 2 cores (8 to 12 cores work best) and at least 4 GB of RAM.  Runtime is impacted by the number of cores available on a machine. Use with Mac OS X requires a 64 bit chipset.
+
+LABEL SOFTWARE PRE-REQUISITES.
++ Linux (32-bit or 64-bit) or Mac OS X (64-bit)
+ - BASH version 3 or later
+ - Standard utilities: sleep, cut, paste, jobs, zip, env, cat, cp, getopts.
+ - License: GPL (any)
++ Perl version 5 or later (tested 5.12.3)
+ - Standard includes: Getopt::Long, File::Basename, 
+ - License: GPL (any)
+
+ADDITIONAL IRMA REQUIREMENTS
++ Linux (64-bit only) or Mac OS X (64-bit)
++ Perl 5 modules (standard includes): Storable, File::Path, POSIX
++ R version 3 or later (tested on 3+)
++ Standard utilities: gzip
+
+
+INSTALLATION.
+1) Unzip the archive "flu-amd.zip".
+2) Move the contents of the directory to a folder in your shell PATH, otherwise, add the directory flu-amd directory path to your path.
+3) Restart your terminal emulator. LABEL and IRMA are now installed.
+4) To test LABEL and IRMA, cd to the folder "tests" and run the script "test_run.sh":
+	cd tests
+	./test_run.sh
+
+
+LICENSE INFORMATION
+Please visit http://wonder.cdc.gov/amd/flu/irma/disclaimer.html for a list of components, their licenses, and for the GPL for IRMA & LABEL.

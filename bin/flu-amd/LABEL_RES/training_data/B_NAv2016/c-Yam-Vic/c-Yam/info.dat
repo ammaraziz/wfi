@@ -1,0 +1,17 @@
+0	Y0
+1	Y3
+2	Y3-like
+3	c-Y1-Y2
+
+1	1|DISC_2013702507_233766_v1|B/Nevada/06/2013|Byam|{c-Y1-Y2}
+2	1|DISC_3025625245_287406_v1|B/Wisconsin/11/2016|Byam|{Y3}
+3	1|EPI162866|B/jilinchaoyang/1214/2007|Yamagata|{c-Y1-Y2}
+4	1|EPI624791|B/Krasnoyarsk/6/2015|Yamagata|{Y3}
+5	1|cds_AAN39777|B/Sichuan/317/2001||{Y0}
+6	1|cds_AEA51357|B/Kol/583/2006||{Y3-like}
+7	2|cds_AGF37841|B/Ontario/0020252/2012||{Y3-like}
+8	1|cds_AGF37841|B/Ontario/0020252/2012||{Y3-like}
+9	1|cds_AGL97344|B/Guangdong/GZ444/2009||{Y3}
+10	1|cds_AGX21747|B/Sydney/201/2002||{Y0}
+11	1|cds_AML40024|B/Tasmania/11/2013||{c-Y1-Y2}
+12	1|cds_BAD29762|B/Yamagata/K490/2001||{Y0}

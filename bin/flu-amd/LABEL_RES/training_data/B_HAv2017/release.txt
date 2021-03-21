@@ -1,0 +1,5 @@
+B_HA v2017R1 a.k.a. v2016R4
+Ujwal Bagal with Sam Shepard
+2017-04-05
+
+This update added clade V1A1 which has a deletion versus Brisbane60 mature HA @162-163.

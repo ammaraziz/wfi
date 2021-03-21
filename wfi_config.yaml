@@ -1,0 +1,25 @@
+# Change these parameters
+
+input_dir: /Users/amar/Desktop/data/
+
+output_dir: /Users/amar/Desktop/data_out/
+
+organism: RSV # options are: FLU or RSV
+
+# these options are only for FLU
+subset: False # set to True if ha, na, mp are the only genes of interest
+second_assembly: False # secondary assembly - will increase run time substantially
+
+
+
+#################################################
+#########Do not touch the below parameters#######
+#################################################
+
+# trimmomatic location
+trimmomatic: bin
+
+# keep going if job fails
+keep-going: True
+
+jobs: 40

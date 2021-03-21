@@ -1,0 +1,17 @@
+Total Score	Alignment
+68498	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F1-A_HA_H1.sam
+68498	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F2-A_HA_H1.sam
+68549	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F1-A_MP.sam
+68549	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F2-A_MP.sam
+68397	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F1-A_NA_N1.sam
+68397	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F2-A_NA_N1.sam
+68488	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F1-A_NP.sam
+68488	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F2-A_NP.sam
+68411	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F1-A_NS.sam
+68411	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F2-A_NS.sam
+68746	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F1-A_PA.sam
+68746	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F2-A_PA.sam
+68453	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F1-A_PB1.sam
+68453	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F2-A_PB1.sam
+68406	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F1-A_PB2.sam
+68406	/tmp/migrau/IRMAv0.6.1/irma-test-ZzksNkVOSFV6bT5bZlY6igvwcS4KJvpZ/ASSEMBLY/F2-A_PB2.sam
