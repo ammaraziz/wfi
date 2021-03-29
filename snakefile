@@ -134,13 +134,14 @@ checkpoint irma:
         R2out = workspace + "qualtrim/{sample}.R2.paired.fastq"
     output:
         contigs = workspace + "assemblies/{sample}/contigs.fasta",
-        status = workspace + "assemblies/{sample}/irma_status.txt"
+        status = temp(workspace + "assemblies/{sample}/irma_status.txt")
     params:
         sample_name = "{sample}",
         afolder = workspace + "assemblies/",
         folder = workspace + "assemblies/{sample}/",
         segs = lambda widlcards: seg_to_keep,
-        run_mode = lambda wildcards: mode
+        run_mode = lambda wildcards: mode,
+        vcf_loc = workspace + 'vcf/' + "{sample}/"
     log: workspace + "logs/irma_{sample}.txt"
     message: "IRMA is running for {input.R1out}"
     threads: 10
@@ -152,12 +153,19 @@ checkpoint irma:
             cat {params.folder}*{params.segs}*.fasta 1> {output.contigs} 2>> {log}
             # python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
             cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
+            mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
             touch {output.status}
         else
             touch {output.contigs}
             touch {output.status}
         fi
     """
+
+# rule irma_mover:
+#     input:
+#         vcf = expand(workspace + 'vcf/' + "{sample}/*.vcf", sample = SAMPLES)
+#     output:
+#         temp()
 
 rule rename_fasta:
     input:
@@ -207,7 +215,7 @@ rule SummaryReport:
         org = org
         #table = expand(workspace + "assemblies/{sample}/tables/READ_COUNTS.txt", sample = SAMPLES)
     shell:"""
-        ./tools/irma_summary.R -i {params.ws:q} -o {output.pdf:q} -r '{params.org}'
+        ./tools/summaryReport.R -i {params.ws:q} -o {output.pdf:q} -r '{params.org}'
     """
 
 # TODO
