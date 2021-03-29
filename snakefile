@@ -8,11 +8,6 @@
 #                                                                           #
 #############################################################################
 
-# How to run wfi snakemake pipeline
-# snakemake --snakefile /path/to/wfi/snakefile -j 46 --configfile path/to/output_dir/wfi_config.yaml
-# for dry run (to test installation/run params) add -np
-
-
 
 #############################################################################
 #                    DO NOT TOUCH ANYTHING BELOW THIS LINE                  #
@@ -54,16 +49,19 @@ if org in ['FLU', 'RSV']:
 
         # gene segment settings
         if subset is True:
-            seg_to_keep = "{HA,NA,MP}"
+            #seg_to_keep = "{HA,NA,MP}"
+            seg_to_keep = 'subset'
         elif subset is False:
-            seg_to_keep = "{HA,NA,MP,NS,NP,PA,PB1,PB2}"
+            #seg_to_keep = "{HA,NA,MP,NS,NP,PA,PB1,PB2}"
+            seg_to_keep = 'all'
         else:
             raise ValueError("Check config file for 'subset' param. If unsure set to: False")
 
     elif org == 'RSV':
         #print('Organism {}'.format(org), file = sys.stdout)
         mode = 'RSV'
-        seg_to_keep = "rsv_"
+        #seg_to_keep = "rsv_"
+        seg_to_keep = "rsv"
 
     else:
         raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
@@ -72,7 +70,7 @@ if org in ['FLU', 'RSV']:
 
 def fixNames(fafile):
 
-    if org == 'FLU': # in other words FLU
+    if org == 'FLU':
         res = ""
         segment = ""
         listSeg = ["HA","MP","NA","NP","NS","PA","PB1","PB2"]
@@ -151,8 +149,8 @@ checkpoint irma:
         mv $PWD/{params.sample_name} {params.afolder}
         if [ -s {params.folder}*.fasta ]
         then
-            # cat {params.folder}*{params.segs}*.fasta 1> {output.contigs} 2>> {log}
-            python {params.folder} {output.contigs} {params.segs} 2>> {log}
+            cat {params.folder}*{params.segs}*.fasta 1> {output.contigs} 2>> {log}
+            # python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
             cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
             touch {output.status}
         else
@@ -206,10 +204,10 @@ rule SummaryReport:
         pdf = workspace + "logs/run_report.pdf"
     params:
         ws = workspace,
-        org = org 
+        org = org
         #table = expand(workspace + "assemblies/{sample}/tables/READ_COUNTS.txt", sample = SAMPLES)
     shell:"""
-        ./tools/irma_summary.R -i {params.ws} -o {output.pdf} -r {params.org}
+        ./tools/irma_summary.R -i {params.ws:q} -o {output.pdf:q} -r '{params.org}'
     """
 
 # TODO
@@ -223,4 +221,4 @@ rule SummaryReport:
 #   o   Average depth for each gene
 #   o   Presence of ambiguous bases in amended files
 #   o   Suspected mixture if observed read stats are suspicious
-# 
+#

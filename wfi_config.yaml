@@ -1,5 +1,15 @@
 # Change these parameters
 
+# How to run wfi snakemake pipeline
+
+# snakemake -j 40 -k
+
+# long form:
+# snakemake --snakefile /path/to/wfi/snakefile -j 46 --configfile path/to/output_dir/wfi_config.yaml
+
+# for dry run (to test installation/run params) add -np
+
+
 input_dir: /Users/amar/Desktop/data/
 
 output_dir: /Users/amar/Desktop/data_out/
@@ -18,8 +28,5 @@ second_assembly: False # secondary assembly - will increase run time substantial
 
 # trimmomatic location
 trimmomatic: bin
-
-# keep going if job fails
-keep-going: True
 
 jobs: 40
