@@ -76,7 +76,7 @@ gcolor = list("A_HA_H1" = '#a6cee3',
 
 ###################################
 
-source("./tools/generate_report.R")
+source("./tools/depthPlots.R")
 
 main  <- function() {
 

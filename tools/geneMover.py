@@ -10,13 +10,24 @@ import os
 import shutil
 from pathlib import Path
 
-src = Path(sys.argv[1])  # source FOLDER
+print(len(sys.argv) != 1)
+
+if len(sys.argv) == 1:
+    sys.exit('''
+    geneMover.py - Combines fasta files from in a given directory
+
+    Usage: 
+        geneMover.py sourceFolder destination_file [subset, all, rsv]
+        geneMover.py output/assembly/ output/assembly/rename/ rsv
+    ''')
+
+src = Path(sys.argv[1])  # source folder
 dst = Path(sys.argv[2])  # source file called dst/contig.fasta
 
 try:
     segs = str(sys.argv[3]).lower()
 except IndexError:
-    sys.exit("Did you specify argument 3 - subset or all?")
+    sys.exit("Did you specify argument 3 - subset, all, rsv?")
 
 print('\nConcatenating files from: {source} to {destination} for {segments} segments \n'.format(
     source=src, destination=dst, segments=segs))
@@ -29,17 +40,16 @@ if segs in ['all', 'subset', 'rsv']:
     elif segs == 'rsv':
         seg_to_keep = ['rsv']
 else:
-    sys.exit("Error - subset (argument #3) must be all or subset")
+    sys.exit("Error - subset (argument #3) must be: all, subset, rsv")
 
 
 filenames = glob.iglob(os.path.join(src, "*.fasta"))
 with open(dst, 'w') as outfile:
     for fname in filenames:
-        if Path(fname).stem in seg_to_keep:
+        if Path(fname).stem.upper() in seg_to_keep:
             with open(fname) as infile:
                 for line in infile:
                     outfile.write(line)
             outfile.write('\n')
-
 
 exit(0)
