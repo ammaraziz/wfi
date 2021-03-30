@@ -172,29 +172,34 @@ plot_rsv_cov <- function(df_avg, plot_name, base_location) {
     x_minor_unit <- mean(range(df_avg$genomic_position)) / 30
 
     annotations <- list(
-      geom_vline(xintercept = minor_loc, color = "steelblue1"),
+      geom_vline(xintercept = minor_loc, color = "black", size = 0.25),
       annotate(
         geom = "text", x = minor_loc,
-        y = y_max, label = snp, color = "black", angle = 90, size = 2
-      )
-    )
+        y = y_max, label = snp, color = "black", angle = 90, size = 2.5))
   }
 
   p <- ggplot(df_avg, aes(x = genomic_position, y = coverage)) +
-    geom_col() +
-    geom_rect(aes(xmin = rsv_primer$loc_start, 
-                  xmax = rsv_primer$loc_end, ymin = -Inf, ymax = Inf, 
+
+    geom_rect(data = rsv_primer, inherit.aes = FALSE,
+              aes(xmin = loc_start,
+                  xmax = loc_end,
+                  ymin = -Inf, ymax = Inf, 
                   fill = c("red", "green", "blue", "yellow")),
-              alpha = 0.01)
+              alpha = 0.3) +
+    
+    geom_col() +
+
+
     annotations +
+    
     scale_y_continuous(expand = c(0, 0)) +
     scale_x_continuous(expand = c(0, 0)) +
     ggtitle(paste(plot_name)) +
-    coord_cartesian(clip = "off")
+    coord_cartesian(clip = "off") + 
+    theme(legend.position = "none")
 
   return(p)
 }
-
 
 plot_combine_rsv <- function(data_avg, base_location) {
   # combines plots into one neat page
