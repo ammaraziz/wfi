@@ -1,6 +1,6 @@
 ## WFI (WhoFlu IRMA) 
 
-A pipeline that uses Snakemake to handle the job submission. It is designed only for Influenza Illumina Sequencing.
+Snakemake pipeline for IRMA. Designed for Influenza and RSV Illumina Sequencing.
 
 ---
 ### Installation
@@ -60,14 +60,13 @@ To use the pipeline, follow these steps:
 ## Dependencies
 
 - [BLAT] for the match step
-
 - [LABEL], which also packages certain resources used by IRMA:
     - Sequence Alignment and Modeling System ([SAM]) for both the rough align and sort steps
     - [Shogun Toolbox], which is an essential part of [LABEL], is used in the sort step
 - [SSW] for the final assembly step, download our [minor modifications to SSW](https://wonder.cdc.gov/amd/flu/irma/ssw-modified.tar.gz)
 - [samtools] for BAM-SAM conversion as well as BAM sorting and indexing
 - [GNU Parallel] for single node parallelization
-
+- R and these R packages: optparse, ggplot2, dplyr, tidyr, stringr, cowplot, gridExtra
 [IRMA manuscript]: https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3030-6
 [IRMA Website]: https://wonder.cdc.gov/amd/flu/irma/
 [IRMA v0.6.7 zip file]: https://wonder.cdc.gov/amd/flu/irma/flu-amd-201704.zip
