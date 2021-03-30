@@ -62,6 +62,9 @@ if ( !(toupper(opts$organism) %in% c('RSV', 'FLU')) ) {
 ###################### vars for plotting
 rsv_gene_locs = list(ns1 = 576, ns2 = 1097, n = 2329, p = 3220, m = 4180, sh = 4599, g = 5565, f = 7521, m2 = 8527, l = 15037)
 
+rsv_primer = list(loc_start = c(49, 3944, 7215, 10959),
+                      loc_end = c(4049, 7528, 11165, 15333))
+
 gcolor = list("A_HA_H1" = '#a6cee3', 
               "A_HA_H3" = '#a6cee3',
               "A_MP" = '#1f78b4', 

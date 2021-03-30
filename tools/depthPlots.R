@@ -182,6 +182,10 @@ plot_rsv_cov <- function(df_avg, plot_name, base_location) {
 
   p <- ggplot(df_avg, aes(x = genomic_position, y = coverage)) +
     geom_col() +
+    geom_rect(aes(xmin = rsv_primer$loc_start, 
+                  xmax = rsv_primer$loc_end, ymin = -Inf, ymax = Inf, 
+                  fill = c("red", "green", "blue", "yellow")),
+              alpha = 0.01)
     annotations +
     scale_y_continuous(expand = c(0, 0)) +
     scale_x_continuous(expand = c(0, 0)) +
