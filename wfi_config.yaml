@@ -10,9 +10,8 @@
 # for dry run (to test installation/run params) add -np
 
 
-input_dir: /Users/amar/Desktop/data/
-
-output_dir: /Users/amar/Desktop/data_out/
+input_dir: /input/directory/with/fastq/files/
+output_dir: /output/directory/
 
 organism: RSV # options are: FLU or RSV
 
