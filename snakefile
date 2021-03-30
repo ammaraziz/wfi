@@ -106,7 +106,7 @@ rule all:
         expand(workspace + "assemblies/rename/{sample}.fasta", sample = SAMPLES),
         expand(workspace + "assemblies/rename/{sample}.txt", sample = SAMPLES),
         expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES),
-        expand(workspace + "logs/run_report.pdf")
+        expand(workspace + "assemblies/run_report.pdf")
 
 #QUALITY FILTER
 rule filter:
@@ -141,7 +141,7 @@ checkpoint irma:
         folder = workspace + "assemblies/{sample}/",
         segs = lambda widlcards: seg_to_keep,
         run_mode = lambda wildcards: mode,
-        vcf_loc = workspace + 'vcf/' + "{sample}/"
+        vcf_loc = workspace + "assemblies/" +'vcf/'
     log: workspace + "logs/irma_{sample}.txt"
     message: "IRMA is running for {input.R1out}"
     threads: 10
@@ -153,7 +153,7 @@ checkpoint irma:
             cat {params.folder}*{params.segs}*.fasta 1> {output.contigs} 2>> {log}
             # python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
             cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
-            mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
+            mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}{params.sample_name}.vcf
             touch {output.status}
         else
             touch {output.contigs}
@@ -183,7 +183,7 @@ rule subTypeSort:
     input:
         fasta = workspace + "assemblies/rename/{sample}.fasta"
     output:
-        tmp = workspace + "assemblies/rename/{sample}.txt"
+        tmp = temp(workspace + "assemblies/rename/{sample}.txt")
     params:
         ws = workspace,
         fasta = workspace + "assemblies/{sample}/contigs.fasta",
@@ -209,9 +209,9 @@ rule SummaryReport:
     input:
         expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES)
     output:
-        pdf = workspace + "logs/run_report.pdf"
+        pdf = workspace + "assemblies/run_report.pdf"
     params:
-        ws = workspace,
+        ws = workspace + "assemblies/",
         org = org
         #table = expand(workspace + "assemblies/{sample}/tables/READ_COUNTS.txt", sample = SAMPLES)
     shell:"""

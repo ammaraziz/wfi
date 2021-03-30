@@ -1,4 +1,0 @@
-# keep going if job fails
-keep-going: True
-# number of cores to use
-jobs: 40
