@@ -67,6 +67,7 @@ To use the pipeline, follow these steps:
 - [samtools] for BAM-SAM conversion as well as BAM sorting and indexing
 - [GNU Parallel] for single node parallelization
 - R and these R packages: optparse, ggplot2, dplyr, tidyr, stringr, cowplot, gridExtra
+- 
 [IRMA manuscript]: https://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-016-3030-6
 [IRMA Website]: https://wonder.cdc.gov/amd/flu/irma/
 [IRMA v0.6.7 zip file]: https://wonder.cdc.gov/amd/flu/irma/flu-amd-201704.zip
