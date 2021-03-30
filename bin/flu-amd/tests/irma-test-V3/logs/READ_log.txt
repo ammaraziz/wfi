@@ -1,8 +1,0 @@
-/tmp/aaziz/IRMAv0.9.3/irma-test-GAceGSBFYBH3H2uRq8BGeaANQ44XzriQ/A_HA_H1.bam:250
-/tmp/aaziz/IRMAv0.9.3/irma-test-GAceGSBFYBH3H2uRq8BGeaANQ44XzriQ/A_MP.bam:250
-/tmp/aaziz/IRMAv0.9.3/irma-test-GAceGSBFYBH3H2uRq8BGeaANQ44XzriQ/A_NA_N1.bam:250
-/tmp/aaziz/IRMAv0.9.3/irma-test-GAceGSBFYBH3H2uRq8BGeaANQ44XzriQ/A_NP.bam:250
-/tmp/aaziz/IRMAv0.9.3/irma-test-GAceGSBFYBH3H2uRq8BGeaANQ44XzriQ/A_NS.bam:250
-/tmp/aaziz/IRMAv0.9.3/irma-test-GAceGSBFYBH3H2uRq8BGeaANQ44XzriQ/A_PA.bam:250
-/tmp/aaziz/IRMAv0.9.3/irma-test-GAceGSBFYBH3H2uRq8BGeaANQ44XzriQ/A_PB1.bam:250
-/tmp/aaziz/IRMAv0.9.3/irma-test-GAceGSBFYBH3H2uRq8BGeaANQ44XzriQ/A_PB2.bam:250
