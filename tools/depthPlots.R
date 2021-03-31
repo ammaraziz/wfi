@@ -158,7 +158,7 @@ plot_rsv_cov <- function(df_avg, plot_name, base_location) {
     pattern = ".vcf", full.names = T
   )
 
-  minor_vars <- get_minor_vars(vcf)
+  minor_vars <- 0#get_minor_vars(vcf)
 
   if (minor_vars == 0 | minor_vars == 00) {
     annotations <- list()
@@ -179,7 +179,7 @@ plot_rsv_cov <- function(df_avg, plot_name, base_location) {
   }
 
   p <- ggplot(df_avg, aes(x = genomic_position, y = coverage)) +
-
+    # primer regions
     geom_rect(data = rsv_primer, inherit.aes = FALSE,
               aes(xmin = loc_start,
                   xmax = loc_end,
@@ -188,7 +188,20 @@ plot_rsv_cov <- function(df_avg, plot_name, base_location) {
               alpha = 0.3) +
     
     geom_col() +
-
+    geom_hline(yintercept = -50) +
+    # genes displayed below
+    geom_rect(data = rsv_gene_locs, inherit.aes = FALSE,
+              aes(xmin = loc_start,
+                  xmax = loc_end, 
+                  ymin = 0, ymax = -100), 
+              color = c("red", "grey", "green", "yellow", "red", "grey", "green", "yellow", "red", "grey"),
+              fill = c("red", "grey", "green", "yellow", "red", "grey", "green", "yellow", "red", "grey")) +
+    # gene names
+    geom_text(data = rsv_gene_locs,
+              aes(x = loc_start + (0.05 * loc_start), 
+                  y = -50, 
+                  label = gene_name), 
+              size = 3) +
 
     annotations +
     

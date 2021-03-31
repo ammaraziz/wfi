@@ -60,7 +60,9 @@ if ( !(toupper(opts$organism) %in% c('RSV', 'FLU')) ) {
   stop(paste("Organism selected:", opts$organism, 'is not RSV or FLU.'))}
 
 ###################### vars for plotting
-rsv_gene_locs = list(ns1 = 576, ns2 = 1097, n = 2329, p = 3220, m = 4180, sh = 4599, g = 5565, f = 7521, m2 = 8527, l = 15037)
+rsv_gene_locs = data.frame(loc_start = c(44, 596, 1125, 2331, 3224, 4190, 4644, 5619, 7567, 8460),
+                           loc_end = c(576, 1097, 2329, 3220, 4180, 4599, 5565,7521, 8527, 15037),
+                           gene_name = c("NS1", "NS2", "N", "P", "M", "SH", "G", "F", "M2", "L"))
 
 rsv_primer = data.frame(loc_start = c(49, 3944, 7215, 10959),
                       loc_end = c(4049, 7528, 11165, 15333))
