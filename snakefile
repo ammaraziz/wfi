@@ -48,19 +48,19 @@ if org in ['FLU', 'RSV']:
 
         # gene segment settings
         if subset is True:
-            #seg_to_keep = "{HA,NA,MP}"
-            seg_to_keep = 'subset'
+            seg_to_keep = "{HA,NA,MP}"
+            #seg_to_keep = 'subset'
         elif subset is False:
-            #seg_to_keep = "{HA,NA,MP,NS,NP,PA,PB1,PB2}"
-            seg_to_keep = 'all'
+            seg_to_keep = "{HA,NA,MP,NS,NP,PA,PB1,PB2}"
+            #seg_to_keep = 'all'
         else:
             raise ValueError("Check config file for 'subset' param. If unsure set to: False")
 
     elif org == 'RSV':
         #print('Organism {}'.format(org), file = sys.stdout)
         mode = 'RSV'
-        #seg_to_keep = "rsv_"
-        seg_to_keep = "rsv"
+        seg_to_keep = "rsv_"
+        #seg_to_keep = "rsv"
 
     else:
         raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
@@ -153,16 +153,19 @@ checkpoint irma:
         IRMA {params.run_mode} {input.R1out} {input.R2out} {params.sample_name} 1>> {log}
         # move output to folder
         mv $PWD/{params.sample_name} {params.afolder}
-        if [ -s {params.folder}*.fasta ]
+
+        myarray=(`find ./ -maxdepth 1 -name "*.fasta"`)
+        if [ ${{#myarray[@]}} -gt 0 ]
+        echo ${{myarray[@]}}
         then
-            cat {params.folder}*{params.segs}*.fasta 1> {output.contigs} 2>> {log} 
+            cat {params.folder}*.fasta 1> {output.contigs} 2>> {log}
             #python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
             cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
             mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
-            touch {output.status}
+            echo irma produced stuff this is temp ignore > {output.status}
         else
-            touch {output.contigs}
-            touch {output.status}
+            echo temp file ignore > {output.contigs}
+            touch temp file ignore > {output.status}
         fi
     """
 
@@ -210,9 +213,8 @@ rule SummaryReport:
     output:
         pdf = workspace + "logs/run_report.pdf"
     params:
-        ws = workspace,
+        ws = workspace + "assemblies/",
         org = org
-        #table = expand(workspace + "assemblies/{sample}/tables/READ_COUNTS.txt", sample = SAMPLES)
     shell:"""
         ./tools/summaryReport.R -i {params.ws:q} -o {output.pdf:q} -r '{params.org}'
     """
