@@ -1,16 +1,15 @@
 #############################################################################
 #                                                                           #
 #                           wfi  (WHO-FLU-IRMA)                             #
-#   pipeline for the assembly of illumina short read data                   #
+#         pipeline for the assembly of illumina short read data             #
 #                                                                           #
-#   Created by Miguel Lopez with heavy modification by Ammar Aziz,          #
-#                   helper script by Uma. #                                 #
+#                          Created by Ammar Aziz                            #
 #                                                                           #
 #############################################################################
 
 
 #############################################################################
-#                    DO NOT TOUCH ANYTHING BELOW THIS LINE                  #
+#                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
 
@@ -30,7 +29,7 @@ os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
 configfile: "wfi_config.yaml"
 IFQ = config["input_dir"]
 workspace = config["output_dir"]
-trimmomatic = config["trimmomatic"]
+#trimmomatic = config["trimmomatic"]
 org = config["organism"].upper()
 subset = config["subset"] #keep only ha, na, mp
 secondary_assembly = config["second_assembly"]
@@ -106,7 +105,7 @@ rule all:
         expand(workspace + "assemblies/rename/{sample}.fasta", sample = SAMPLES),
         expand(workspace + "assemblies/rename/{sample}.txt", sample = SAMPLES),
         expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES),
-        expand(workspace + "assemblies/run_report.pdf")
+        expand(workspace + "logs/run_report.pdf")
 
 #QUALITY FILTER
 rule filter:
@@ -115,16 +114,20 @@ rule filter:
         faR2 = expand(IFQ + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R2"])
     output:
         R1out = workspace + "qualtrim/{sample}.R1.paired.fastq",
-        R2out = workspace + "qualtrim/{sample}.R2.paired.fastq",
-        R1out_unpaired = workspace + "qualtrim/{sample}.R1.unpaired.fastq",
-        R2out_unpaired = workspace + "qualtrim/{sample}.R2.unpaired.fastq"
+        R2out = workspace + "qualtrim/{sample}.R2.paired.fastq"
+        #R1out_unpaired = workspace + "qualtrim/{sample}.R1.unpaired.fastq",
+        #R2out_unpaired = workspace + "qualtrim/{sample}.R2.unpaired.fastq"
     params:
-       trimmo = trimmomatic
-    threads: 1
+       #trimmo = trimmomatic,
+       #cutadapt = config["cutadapt"]
+       Fadapter = f"bin/adapters/{org}_f.fa",
+       Radapter = f"bin/adapters/{org}_r.fa"
+    threads: 2
     message: "Filtering and trimming {input.faR1} reads."
-    log: workspace + "logs/trimmomatic_{sample}.txt"
+    log: workspace + "logs/trim_{sample}.txt"
     shell:"""
-      java -jar {params.trimmo}/trimmomatic-0.39.jar PE -threads {threads} -phred33 {input.faR1} {input.faR2} {output.R1out} {output.R1out_unpaired} {output.R2out} {output.R2out_unpaired} ILLUMINACLIP:{params.trimmo}/adapters/TruSeq2-SE.fa:2:30:10 SLIDINGWINDOW:4:15 LEADING:3 MINLEN:75 HEADCROP:10 TRAILING:5 2> {log}
+      #cutadapt
+      cutadapt {input.faR1} {input.faR2} -j {threads} -g file:{params.Fadapter} -A file:{params.Radapter} -o {output.R1out} -p {output.R2out} --report full 1> {log}
     """
 
 #Assembly using IRMA PE mode.
@@ -141,31 +144,27 @@ checkpoint irma:
         folder = workspace + "assemblies/{sample}/",
         segs = lambda widlcards: seg_to_keep,
         run_mode = lambda wildcards: mode,
-        vcf_loc = workspace + "assemblies/" +'vcf/'
+        vcf_loc = workspace + 'vcf/' + "{sample}/"
     log: workspace + "logs/irma_{sample}.txt"
     message: "IRMA is running for {input.R1out}"
     threads: 10
     shell:"""
+        # run IRMA
         IRMA {params.run_mode} {input.R1out} {input.R2out} {params.sample_name} 1>> {log}
+        # move output to folder
         mv $PWD/{params.sample_name} {params.afolder}
         if [ -s {params.folder}*.fasta ]
         then
-            cat {params.folder}*{params.segs}*.fasta 1> {output.contigs} 2>> {log}
-            # python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
+            cat {params.folder}*{params.segs}*.fasta 1> {output.contigs} 2>> {log} 
+            #python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
             cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
-            mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}{params.sample_name}.vcf
+            mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
             touch {output.status}
         else
             touch {output.contigs}
             touch {output.status}
         fi
     """
-
-# rule irma_mover:
-#     input:
-#         vcf = expand(workspace + 'vcf/' + "{sample}/*.vcf", sample = SAMPLES)
-#     output:
-#         temp()
 
 rule rename_fasta:
     input:
@@ -183,7 +182,7 @@ rule subTypeSort:
     input:
         fasta = workspace + "assemblies/rename/{sample}.fasta"
     output:
-        tmp = temp(workspace + "assemblies/rename/{sample}.txt")
+        tmp = workspace + "assemblies/rename/{sample}.txt"
     params:
         ws = workspace,
         fasta = workspace + "assemblies/{sample}/contigs.fasta",
@@ -209,9 +208,9 @@ rule SummaryReport:
     input:
         expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES)
     output:
-        pdf = workspace + "assemblies/run_report.pdf"
+        pdf = workspace + "logs/run_report.pdf"
     params:
-        ws = workspace + "assemblies/",
+        ws = workspace,
         org = org
         #table = expand(workspace + "assemblies/{sample}/tables/READ_COUNTS.txt", sample = SAMPLES)
     shell:"""
@@ -220,13 +219,4 @@ rule SummaryReport:
 
 # TODO
 
-#wfi to do list:
-#   Fix issue with H3 275Y position (it should be 274)
-    # similar issue with Bvic (do not call 275Y )
-#•  Fix output of subset so B virus only includes HA/NA (not MP)
-#   Fix issue with some genes missing causing an error and snakemake pipeline to fail
-#•  Create a summary file to act as a report for quick diagnostics, includes:
-#   o   Average depth for each gene
-#   o   Presence of ambiguous bases in amended files
-#   o   Suspected mixture if observed read stats are suspicious
-#
+# Fix issue with FLU, wifi not moving fasta and renaming. 

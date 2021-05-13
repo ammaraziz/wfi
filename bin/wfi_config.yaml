@@ -1,10 +1,10 @@
 # Change these parameters
 
-input_dir: /home/aaziz/data/rsv_iseq26/
+input_dir: [input_dir]
 
-output_dir: /home/aaziz/analysis/rsv/iseq26_v2/
+output_dir: [output_dir]
 
-organism: RSV # options are: FLU or RSV
+organism: ORG # options are: FLU or RSV
 
 # these options are only for FLU
 subset: False # set to True if ha, na, mp are the only genes of interest
