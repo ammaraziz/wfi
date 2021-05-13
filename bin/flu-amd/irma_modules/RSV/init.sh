@@ -41,8 +41,11 @@ ASSEM_PROG="SSW"	# assembly program [SSW]
 ASSEM_PROC=20		# grid maximum processes for assembly
 INS_T=0.25		# minimum frquenncy threshold for insertion refinement
 DEL_T=0.60		# minimum frequency threshold for deletion refinement
+INS_T_DEPTH=20
+DEL_T_DEPTH=20
 MIN_AMBIG=0.25		# minimum called SNV frequency for mixed base in amended consensus folder
-
+MIN_CONS_SUPPORT=15	# consensus allele minimum count
+MIN_CONS_QUALITY=15	# consensus allele minimum average quality
 
 ### VARIANT CALLING ###
 # HEURISTICS
@@ -59,3 +62,4 @@ MIN_CONF=0.80		# minimum confidence not machine error
 SIG_LEVEL=0.999		# significance test level for variant calling (.90,.95,.99,.999).
 
 # Meta-assembly program control
+ALIGN_AMENDED=1

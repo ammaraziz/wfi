@@ -13,10 +13,11 @@ SKIP_E=1		# skip reference elongation
 REF_SET=$DEF_SET	# Same as the "consensus.fasta" in the reference folder for the module.
 
 ### READ GATHERING ###
-MAX_ROUNDS=5		# round of read gathering
-USE_MEDIAN=1		# use the median quality or the average [1,0]
-QUAL_THRESHOLD=30	# minimum read statistic
-MIN_LEN=75		# minimum read length
+MAX_ROUNDS=5			# round of read gathering
+USE_MEDIAN=1			# use the median quality or the average [1,0]
+QUAL_THRESHOLD=30		# minimum read statistic
+MIN_LEN=75			# minimum read length
+ENFORCE_CLIPPED_LENGTH=0	# Off. Reads are filtered for minimum length post adapter trimming.	
 
 ## MATCH STEP
 MATCH_PROC=20		# grid maximum processes for the MATCH
@@ -24,7 +25,7 @@ MATCH_PROG="BLAT"	# match (all or any match) program [BLAT]
 MIN_RP=15		# minimum read pattern count to continue
 MIN_RC=15		# minimum read count to continue
 
-## SORT STEP
+## SORT STEP 
 SORT_PROG="BLAT"	# [LABEL,BLAT]
 SORT_PROC=80		# currently not used
 NONSEGMENTED=0
@@ -63,3 +64,4 @@ MIN_CONF=0.80		# minimum confidence not machine error
 
 # CONFIDENCE INTERVALS
 SIG_LEVEL=0.999		# significance test level for variant calling (.90,.95,.99,.999). 
+ALIGN_AMENDED=1  #Do global alignment of the plurality consensus to the HMM profile 
