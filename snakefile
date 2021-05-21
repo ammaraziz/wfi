@@ -75,9 +75,10 @@ def fixNames(fafile):
         listSeg = ["HA","MP","NA","NP","NS","PA","PB1","PB2"]
         sampleName = fafile.split("/")[-2].split("_")[0]
         for index, record in enumerate(SeqIO.parse(fafile, "fasta")):
-            for g in listSeg:
-                if g in record.description:
-                    segment = g
+            segment = sub('^[A|B]_', '', record.description)
+            # for g in listSeg:
+            #     if g in record.description:
+            #         segment = g
             res += ">" + sampleName + "_" + segment + "\n" + str(record.seq) + "\n"
         return(res)
 
