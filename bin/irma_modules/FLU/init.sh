@@ -54,14 +54,17 @@ MIN_AMBIG=0.20		# minimum called SNV frequency for mixed base in amended consens
 ### VARIANT CALLING ###
 # HEURISTICS
 AUTO_F=1		# auto-adjust frequency threshold [1,0]
-MIN_FI=0.005		# minimum insertion variant frequency
-MIN_FD=0.005		# minimum deletion variant frequency
-MIN_F=0.008		# minimum frequency for single nucleotide variants
+MIN_FI=0.05		# minimum insertion variant frequency
+MIN_FD=0.05		# minimum deletion variant frequency
+MIN_F=0.05		# minimum frequency for single nucleotide variants
 MIN_C=2			# minimum count for variants
 MIN_AQ=24		# minimum average variant quality, does not apply to deletions
 MIN_TCC=100		# minimum non-ambiguous column coverage
 MIN_CONF=0.80		# minimum confidence not machine error
+MIN_CONS_SUPPORT=20
+MIN_CONS_QUALITY=15
 
 # CONFIDENCE INTERVALS
 SIG_LEVEL=0.999		# significance test level for variant calling (.90,.95,.99,.999). 
 ALIGN_AMENDED=1  #Do global alignment of the plurality consensus to the HMM profile 
+
