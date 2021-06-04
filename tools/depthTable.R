@@ -43,16 +43,16 @@ calc_stats <- function(coverage_df, org) {
   if (toupper(org) == "RSV") {
     
     out <- coverage_df %>%
-      summarise(total_mean = round(mean(Consensus_Count)), 
-                total_median = round(median(Consensus_Count)),
-                amplicon1_mean = round(mean(Consensus_Count[rsv_primer$loc_start[1]:rsv_primer$loc_end[1]])),
-                amplicon1_median = round(median(Consensus_Count[rsv_primer$loc_start[1]:rsv_primer$loc_end[1]])),
-                amplicon2_mean = round(mean(Consensus_Count[rsv_primer$loc_start[2]:rsv_primer$loc_end[2]])),
-                amplicon2_median = round(median(Consensus_Count[rsv_primer$loc_start[2]:rsv_primer$loc_end[2]])),
-                amplicon3_mean = round(mean(Consensus_Count[rsv_primer$loc_start[3]:rsv_primer$loc_end[3]])),
-                amplicon3_median = round(median(Consensus_Count[rsv_primer$loc_start[3]:rsv_primer$loc_end[3]])),
-                amplicon4_mean = round(mean(Consensus_Count[rsv_primer$loc_start[4]:length(Consensus_Count)])),
-                amplicon4_median = round(median(Consensus_Count[rsv_primer$loc_start[4]:length(Consensus_Count)]))
+      summarise(total_mean = round(mean(Coverage.Depth)), 
+                total_median = round(median(Coverage.Depth)),
+                amplicon1_mean = round(mean(Coverage.Depth[rsv_primer$loc_start[1]:rsv_primer$loc_end[1]])),
+                amplicon1_median = round(median(Coverage.Depth[rsv_primer$loc_start[1]:rsv_primer$loc_end[1]])),
+                amplicon2_mean = round(mean(Coverage.Depth[rsv_primer$loc_start[2]:rsv_primer$loc_end[2]])),
+                amplicon2_median = round(median(Coverage.Depth[rsv_primer$loc_start[2]:rsv_primer$loc_end[2]])),
+                amplicon3_mean = round(mean(Coverage.Depth[rsv_primer$loc_start[3]:rsv_primer$loc_end[3]])),
+                amplicon3_median = round(median(Coverage.Depth[rsv_primer$loc_start[3]:rsv_primer$loc_end[3]])),
+                amplicon4_mean = round(mean(Coverage.Depth[rsv_primer$loc_start[4]:length(Coverage.Depth)])),
+                amplicon4_median = round(median(Coverage.Depth[rsv_primer$loc_start[4]:length(Coverage.Depth)]))
                 )
     out$sampleID = coverage_df$sampleID[1]
     out$Manual_Check_Required = abs(out$total_mean/out$total_median - 1) > 0.2
@@ -68,14 +68,17 @@ calc_stats <- function(coverage_df, org) {
   return(out)
 }
 
-base_location = "/media/s_drive/WHOFLU/mol_biol/Illumina folder/2021/Raw Data/iSeq34_Lib2109/Output_RSV/assemblies"
 
-locs = get_data_location(base_location, 'cov')
-coverage_data = get_table_data(locs, org = 'RSV')
 
-out = NULL
-for (i in coverage_data) {
-  tmp = calc_stats(i, org = 'RSV')
-  out = rbind(tmp, out)
-}
-write.table(out, file = "tmp.txt", sep = "\t", row.names = F, quote = F)
+# usage
+# base_location = "/media/s_drive/WHOFLU/mol_biol/Illumina folder/2021/Raw Data/iSeq34_Lib2109/Output_RSV/assemblies"
+# 
+# locs = get_data_location(base_location, 'cov')
+# coverage_data = get_table_data(locs, org = 'RSV')
+# 
+# out = NULL
+# for (i in coverage_data) {
+#   tmp = calc_stats(i, org = 'RSV')
+#   out = rbind(tmp, out)
+# }
+# write.table(out, file = "tmp.txt", sep = "\t", row.names = F, quote = F)
