@@ -125,11 +125,22 @@ main  <- function() {
       mutate(sample_gene = paste0(sample, "/", gene))
     
     names(data_aa_avg) = file_names$sample_gene
-    #plot
+    ##plot
     final_out = plot_combine_flu(data_avg = data_aa_avg,
                              gene = file_names$gene,
                              sample = file_names$sample,
                              base_location = base_location)
+    ##table
+    locs = get_data_location(base_location = base_location, type = 'cov')
+    coverage_data = get_table_data(locs, org = 'FLU')
+    
+    out_table = NULL
+    for (i in coverage_data) {
+      tmp = calc_stats(i, org = 'FLU')
+      out_table = rbind(tmp, out_table)
+    }
+    write.table(out_table, file = paste0(opts$output, 'depthTable.tsv'), sep = "\t", row.names = F, quote = F)
+    
   } else {
     stop("Error: Organism not RSV or FLU. Check input")
   }
