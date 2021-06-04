@@ -212,7 +212,7 @@ rule SummaryReport:
     input:
         expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES)
     output:
-        loc = workspace + "assemblies/rename/"
+        loc = workspace + "assemblies/rename/{sample}_"
     params:
         ws = workspace + "assemblies/",
         org = org
