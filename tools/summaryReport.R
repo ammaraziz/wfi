@@ -82,6 +82,7 @@ gcolor = list("A_HA_H1" = '#a6cee3',
 ###################################
 
 source("./tools/depthPlots.R")
+source("./tools/depthTable.R")
 
 main  <- function() {
 
@@ -101,6 +102,16 @@ main  <- function() {
     names(data_aa_avg) = str_match(locations_aa, pattern = "(\\w+)/tables")[,2]
     #plot
     final_out = plot_combine_rsv(data_avg = data_aa_avg, base_location = base_location)
+    #table
+    locs = get_data_location(base_location, 'cov')
+    coverage_data = get_table_data(locs, org = 'RSV')
+    
+    out_table = NULL
+    for (i in coverage_data) {
+      tmp = calc_stats(i, org = 'RSV')
+      out_table = rbind(tmp, out_table)
+    }
+    write.table(out, file = paste0(opts$output, 'depthTable.txt'), sep = "\t", row.names = F, quote = F)
   
     #FLU
   } else if (opts$organism == "FLU") {
@@ -120,7 +131,7 @@ main  <- function() {
   } else {
     stop("Error: Organism not RSV or FLU. Check input")
   }
-  ggsave(filename =  opts$output,
+  ggsave(filename =  paste0(opts$output, "depthReport.pdf"),
          plot = final_out, device = "pdf",
          dpi = 300,  width = 420, height = 297, units = 'mm')
 }

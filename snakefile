@@ -212,14 +212,14 @@ rule SummaryReport:
     input:
         expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES)
     output:
-        pdf = workspace + "logs/run_report.pdf"
+        loc = workspace + "assemblies/rename/"
     params:
         ws = workspace + "assemblies/",
         org = org
     shell:"""
-        ./tools/summaryReport.R -i {params.ws:q} -o {output.pdf:q} -r '{params.org}'
+        ./tools/summaryReport.R -i {params.ws:q} -o {output.loc:q} -r '{params.org}'
     """
 
 # TODO
 
-# Fix issue with FLU, wifi not moving fasta and renaming. 
+# Fix issue with FLU, wifi not moving fasta and renaming.
