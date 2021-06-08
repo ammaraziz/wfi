@@ -158,7 +158,7 @@ plot_rsv_cov <- function(df_avg, plot_name, base_location) {
     pattern = ".vcf", full.names = T
   )
 
-  minor_vars <- 0#get_minor_vars(vcf)
+  minor_vars <- get_minor_vars(vcf)
 
   if (minor_vars == 0 | minor_vars == 00) {
     annotations <- list()
