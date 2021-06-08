@@ -41,6 +41,12 @@ Input directory needs to be the wfi output directory called 'assemblies'
 The -r or --organism flag is needed because IRMA produces a file for each assembled contig (for flu thats 8 genes)
 "
 
+cov_message = "# Manual_Check_Required column will indicate (TRUE) if the depth is more than 20% different between the mean and median calculation. [mean(reads)/median(reads) > 20%]"
+qc_message = "# qc_pass_50pc  - Did 50% of the total reads pass IRMA QC? [total_reads_pass_qc > 50%]
+# nomatch_high - Num of no-match reads that is greater than match-reads. [nomatch > match]
+# match_adequate - Num of match-reads above a minimum threshold (approx. ~50x depth). [reads_match >= min_read]
+# alt_metric - Large Num of alt-reads detected - helps to identify mixture (10% of reads and approx. 25x depth). [altmatch/match > 0.10 & altmatch > min_read_alt] "
+
 arguments=NA
 tryCatch(
   { arguments = parse_args(object = parser, positional_arguments = TRUE) },
@@ -83,6 +89,7 @@ gcolor = list("A_HA_H1" = '#a6cee3',
 
 source("./tools/depthPlots.R")
 source("./tools/depthTable.R")
+source("./tools/qcTable.R")
 
 main  <- function() {
 
@@ -97,23 +104,28 @@ main  <- function() {
   data_aa = get_data(locations_aa)
   data_aa_avg = lapply(data_aa, FUN = average_counts, type = 'aa', by_num = 5)
 
+  # qc table
+  qc_loc = get_data_location(base_location = base_location, type = 'rc')
+  qc_data = get_qc_data(qc_loc)
+  qc_stats = calc_qc_stats(qc_data, org = 'RSV')#opts$organism)
+  write.table(qc_stats, file = paste0(opts$output, '_qcTable.tsv'), sep = "\t", row.names = F, quote = F)
+  write(qc_message, file = paste0(opts$output, '_qcTable.tsv'), append = T)
+  
   #RSV
   if (opts$organism == "RSV") {
     names(data_aa_avg) = str_match(locations_aa, pattern = "(\\w+)/tables")[,2]
-    
     #plot
     final_out = plot_combine_rsv(data_avg = data_aa_avg, base_location = base_location)
-    
-    #table
+    # cov table
     locs = get_data_location(base_location = base_location, type = 'cov')
     coverage_data = get_table_data(locs, org = 'RSV')
-
     out_table = NULL
     for (i in coverage_data) {
       tmp = calc_stats(i, org = 'RSV')
       out_table = rbind(tmp, out_table)
     }
-    write.table(out_table, file = paste0(opts$output, 'depthTable.tsv'), sep = "\t", row.names = F, quote = F)
+    write.table(out_table, file = paste0(opts$output, '_depthTable.tsv'), sep = "\t", row.names = F, quote = F)
+    write(cov_message, file = paste0(opts$output, '_depthTable.tsv'), append = T)
   
     #FLU
   } else if (opts$organism == "FLU") {
@@ -130,17 +142,16 @@ main  <- function() {
                              gene = file_names$gene,
                              sample = file_names$sample,
                              base_location = base_location)
-    ##table
+    ## cov table
     locs = get_data_location(base_location = base_location, type = 'cov')
     coverage_data = get_table_data(locs, org = 'FLU')
-    
     out_table = NULL
     for (i in coverage_data) {
       tmp = calc_stats(i, org = 'FLU')
       out_table = rbind(tmp, out_table)
     }
-    write.table(out_table, file = paste0(opts$output, 'depthTable.tsv'), sep = "\t", row.names = F, quote = F)
-    
+    write.table(out_table, file = paste0(opts$output, '_depthTable.tsv'), sep = "\t", row.names = F, quote = F)
+    write(cov_message, file = paste0(opts$output, '_depthTable.tsv'), append = T)
   } else {
     stop("Error: Organism not RSV or FLU. Check input")
   }
