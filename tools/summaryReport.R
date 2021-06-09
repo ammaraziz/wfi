@@ -131,7 +131,7 @@ main  <- function() {
   } else if (opts$organism == "FLU") {
     # rename
     file_names = tibble(
-      sample = str_match(locations_aa, pattern = "(N100.+?)/tables")[, 2],
+      sample = str_match(locations_aa, pattern = "(\\w+)/tables")[, 2],
       file_name = str_match(locations_aa, pattern = "[A|B]_\\w{2,3}.+")) %>% 
       mutate(gene = str_replace(file_name, pattern = "-allAlleles.txt", replacement = "")) %>%
       mutate(sample_gene = paste0(sample, "/", gene))

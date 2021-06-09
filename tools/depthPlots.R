@@ -35,7 +35,6 @@ get_minor_vars <- function(file_location, ...) {
   # reads in vcf file to get minor variants
   # return df of: pos ref alt dp af
   extra <- list(...)
-
   tryCatch(
     vcf <- read.delim(file_location,
       header = F, skip = 21, sep = "\t",
@@ -257,12 +256,27 @@ plot_combine_flu <- function(data_avg, sample, gene, base_location) {
   return(plots_combined)
 }
 
-# usage example is here:
-#
-# base_location = '/media/s_drive/WHOFLU/mol_biol/Illumina folder/2021/Raw Data/iSeq30/output/assemblies'
-#
+#usage example is here:
+
+# base_location = '~/Desktop/assemblies'
+# 
 # locations_aa = get_data_location(base_location, type = 'aa')
 # data_aa = get_data(locations_aa)
 # data_aa_avg = lapply(data_aa, FUN = average_counts, type = 'aa', by_num = 5)
 # names(data_aa_avg) = str_match(locations_aa, pattern = "assemblies\\/(\\w+)\\/tables")[,2]
 # plot_rsv_cov(data_aa, 'test', base_location = base_location)
+# 
+# file_names = tibble(
+#   sample = str_match(locations_aa, pattern = "(\\w+)/tables")[, 2],
+#   file_name = str_match(locations_aa, pattern = "[A|B]_\\w{2,3}.+")) %>% 
+#   mutate(gene = str_replace(file_name, pattern = "-allAlleles.txt", replacement = "")) %>%
+#   mutate(sample_gene = paste0(sample, "/", gene))
+# 
+# a = plot_combine_flu(data_avg = data_aa_avg,
+#                  gene = file_names$gene,
+#                  sample = file_names$sample,
+#                  base_location = base_location)
+# 
+# ggsave(filename =  paste0("depthReport.pdf"),
+#        plot = a, device = "pdf",
+#        dpi = 300,  width = 420, height = 297, units = 'mm')
