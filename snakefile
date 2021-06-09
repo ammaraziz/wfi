@@ -29,7 +29,6 @@ os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
 configfile: "wfi_config.yaml"
 IFQ = config["input_dir"]
 workspace = config["output_dir"]
-#trimmomatic = config["trimmomatic"]
 org = config["organism"].upper()
 subset = config["subset"] #keep only ha, na, mp
 secondary_assembly = config["second_assembly"]
@@ -106,7 +105,7 @@ rule all:
         expand(workspace + "assemblies/rename/{sample}.fasta", sample = SAMPLES),
         expand(workspace + "assemblies/rename/{sample}.txt", sample = SAMPLES),
         expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES),
-        expand(workspace + "logs/run_report.pdf")
+        join(workspace + "assemblies/rename/process_complete.txt")
 
 #QUALITY FILTER
 rule filter:
@@ -212,14 +211,12 @@ rule SummaryReport:
     input:
         expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES)
     output:
-        loc = workspace + "assemblies/rename/{sample}_"
+        loc = join(workspace + "assemblies/rename/process_complete.txt")
     params:
         ws = workspace + "assemblies/",
+        loc_out = join(workspace + "assemblies/rename/"),
         org = org
     shell:"""
-        ./tools/summaryReport.R -i {params.ws:q} -o {output.loc:q} -r '{params.org}'
+        ./tools/summaryReport.R -i {params.ws:q} -o {params.loc_out:q} -r '{params.org}'
+        touch {output.loc}
     """
-
-# TODO
-
-# Fix issue with FLU, wifi not moving fasta and renaming.
