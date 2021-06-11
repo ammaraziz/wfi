@@ -115,11 +115,7 @@ rule filter:
     output:
         R1out = workspace + "qualtrim/{sample}.R1.paired.fastq",
         R2out = workspace + "qualtrim/{sample}.R2.paired.fastq"
-        #R1out_unpaired = workspace + "qualtrim/{sample}.R1.unpaired.fastq",
-        #R2out_unpaired = workspace + "qualtrim/{sample}.R2.unpaired.fastq"
     params:
-       #trimmo = trimmomatic,
-       #cutadapt = config["cutadapt"]
        Fadapter = f"bin/adapters/{org}_f.fa",
        Radapter = f"bin/adapters/{org}_r.fa"
     threads: 2
@@ -127,7 +123,13 @@ rule filter:
     log: workspace + "logs/trim_{sample}.txt"
     shell:"""
       #cutadapt
-      cutadapt {input.faR1} {input.faR2} -j {threads} -g file:{params.Fadapter} -A file:{params.Radapter} -o {output.R1out} -p {output.R2out} --report full 1> {log}
+      cutadapt {input.faR1} {input.faR2} \
+      -j {threads} \
+      -g file:{params.Fadapter} \
+      -A file:{params.Radapter} \
+      -o {output.R1out} \
+      -p {output.R2out} \
+      --report full 1> {log}
     """
 
 #Assembly using IRMA PE mode.
