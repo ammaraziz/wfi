@@ -73,16 +73,25 @@ rsv_gene_locs = data.frame(loc_start = c(44, 596, 1125, 2331, 3224, 4190, 4644, 
 rsv_primer = data.frame(loc_start = c(49, 3944, 7215, 10959),
                       loc_end = c(4049, 7528, 11165, 15333))
 
-gcolor = list("A_HA_H1" = '#a6cee3', 
+gcolor = list("A_HA_H1" = '#a6cee3',
               "A_HA_H3" = '#a6cee3',
-              "A_MP" = '#1f78b4', 
-              "A_NA_N1" = '#b2df8a', 
+              "A_MP" = '#1f78b4',
+              "A_NA_N1" = '#b2df8a',
               "A_NA_N2" = '#b2df8a',
               "A_NP" = '#33a02c',
-              "A_NS" = '#fb9a99', 
-              "A_PA" = '#ff7f00', 
-              "A_PB1" = '#6a3d9a', 
-              "A_PB2" = '#b15928')
+              "A_NS" = '#fb9a99',
+              "A_PA" = '#ff7f00',
+              "A_PB1" = '#6a3d9a',
+              "A_PB2" = '#b15928',
+              "B_HA" = '#a6cee3',
+              "B_N2" = '#b2df8a',
+              "B_NP" = '#33a02c',
+              "B_NS" = '#fb9a99',
+              "B_PA" = '#ff7f00',
+              "B_PB1" = '#6a3d9a',
+              "B_PB2" = '#b15928',
+              "A_MP" = '#1f78b4')
+
 
 
 ###################################
