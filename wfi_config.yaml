@@ -1,24 +1,15 @@
 # How to run wfi snakemake pipeline
-      # snakemake -j 40 -k
+# snakemake -j 40 -k
 # long form:
 # snakemake --snakefile /path/to/wfi/snakefile -j 46 --configfile path/to/output_dir/wfi_config.yaml
 # for dry run (to test installation/run params) add -np
 
-# Change these parameters
 input_dir: /input/directory/with/fastq/files/
 output_dir: /output/directory/
 
 organism: RSV # options are: FLU or RSV
 
-# these options are only for FLU
-subset: False # set to True if ha, na, mp are the only genes of interest
 second_assembly: False # secondary assembly - will increase run time substantially
 
-
-
-#################################################
-#########Do not touch the below parameters#######
-#################################################
-
-# trimmomatic location
-trimmomatic: bin
+# FLU only
+subset: False # set to True if ha, na, mp are the only genes of interest
