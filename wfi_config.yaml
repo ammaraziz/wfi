@@ -1,5 +1,5 @@
 # How to run wfi snakemake pipeline
-      # snakemake -j 40 -k
+# snakemake -j 40 -k
 # long form:
 # snakemake --snakefile /path/to/wfi/snakefile -j 46 --configfile path/to/output_dir/wfi_config.yaml
 # for dry run (to test installation/run params) add -np

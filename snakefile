@@ -12,6 +12,7 @@
 #                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
+version = 0.1
 
 import subprocess, sys, os, glob, shutil
 from re import sub
@@ -144,7 +145,7 @@ rule filter:
       --report full 1> {log}
     """
 
-#Assembly using IRMA PE mode.
+#Assembly IRMA
 checkpoint irma:
     input:
         R1out = workspace + "qualtrim/{sample}.R1.paired.fastq",
