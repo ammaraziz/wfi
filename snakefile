@@ -12,6 +12,7 @@
 #                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
+version = 0.1
 
 import subprocess, sys, os, glob, shutil
 from re import sub
@@ -43,7 +44,7 @@ if org in ['FLU', 'RSV']:
         elif secondary_assembly is False:
             mode = 'FLU'
         else:
-            raise ValueError("Assembly mode unknown. Check config file for 'second_assembly', options MUST be either True or False. (exactly)")
+            raise ValueError("Assembly mode unknown. Check config file for 'second_assembly', options MUST be either True or False")
 
         # gene segment settings
         if subset is True:
@@ -56,10 +57,14 @@ if org in ['FLU', 'RSV']:
             raise ValueError("Check config file for 'subset' param. If unsure set to: False")
 
     elif org == 'RSV':
-        #print('Organism {}'.format(org), file = sys.stdout)
-        mode = 'RSV'
+        if secondary_assembly is True:
+            mode = 'RSV-secondary'
+        elif secondary_assembly is False:
+            mode = 'RSV'
+        else:
+            raise ValueError("Assembly mode unknown. Check config file for 'second_assembly', options MUST be either True or False")
+
         seg_to_keep = "rsv_"
-        #seg_to_keep = "rsv"
 
     else:
         raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
@@ -132,7 +137,7 @@ rule filter:
       --report full 1> {log}
     """
 
-#Assembly using IRMA PE mode.
+#Assembly IRMA
 checkpoint irma:
     input:
         R1out = workspace + "qualtrim/{sample}.R1.paired.fastq",
