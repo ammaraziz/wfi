@@ -34,28 +34,21 @@ calc_qc_stats = function(dat_out, org) {
   nomatch_high = (dat_out$match/dat_out$passQC) > (dat_out$nomatch/dat_out$passQC)
   match_adequate = (dat_out$match + dat_out$altmatch) >= min_read
   alt_metric = ((dat_out$altmatch/dat_out$match) > 0.10) & (dat_out$altmatch > min_read_alt)
-
+  
   dat_out = dat_out %>% mutate(qc_pass_50pc = case_when(qc_pass_50pc == TRUE ~ 'ok',
                                                         qc_pass_50pc == FALSE ~ 'FAILED',
                                                         TRUE ~ NA_character_),
-                               nomatch_high = case_when(nomatch_high == FALSE ~ 'FAILED',
-                                                        nomatch_high == TRUE ~ 'ok',
-                                                        TRUE ~ NA_character_)
+                               nomatch_high = case_when(nomatch_high == TRUE ~ 'FAILED',
+                                                        nomatch_high == FALSE ~ 'ok',
+                                                        TRUE ~ NA_character_
+                                                        ),
+                               match_adequate = case_when(match_adequate == TRUE ~ 'ok',
+                                                          match_adequate == FALSE ~ 'FAILED',
+                                                          TRUE ~ NA_character_),
+                               alt_metric = case_when(alt_metric == TRUE ~ 'Mix?',
+                                                      alt_metric == FALSE ~ '-',
+                                                      TRUE ~ NA_character_)
   )
-  if('altmatch' %in% colnames(dat_out)) {
-    dat_out$match_adequate = NA_character_
-    dat_out$match_adequate[dat_out$match_adequate == TRUE] = 'ok'
-    dat_out$match_adequate[dat_out$match_adequate == FALSE] = 'FAILED'
-    
-    dat_out$alt_metric[dat_out$alt_metric == TRUE] = NA_character_
-    dat_out$alt_metric[dat_out$alt_metric == TRUE] = "Mixture?" 
-    dat_out$alt_metric[dat_out$alt_metric == TRUE] = "-"
-
-  } else{
-    dat_out$match_adequate = rep(NA_character_, nrow(dat_out))
-    dat_out$alt_metric =  rep(NA_character_, nrow(dat_out))
-  }
-  
   dat_out = dplyr::select(dat_out, sampleID, qc_pass_50pc, nomatch_high, match_adequate, alt_metric, 2:(ncol(dat_out) - 4))
   return(dat_out)
 }
