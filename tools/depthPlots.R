@@ -103,11 +103,12 @@ plot_flu_cov <- function(df, sample, gene, base_location) {
   # plots coverage given a dataframe
   # df        :   dataframe  - output of average_counts function
   # plot_name :   character of plot name
-
+  
   vcf <- list.files(
     path = paste(base_location, sample, sep = "/"),
     pattern = paste0(gene, ".vcf"), full.names = T
   )
+
   minor_vars <- get_minor_vars(vcf)
   plot_name <- paste(sample, gene, sep = "/")
 

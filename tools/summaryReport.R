@@ -13,7 +13,7 @@ option_list <- list(
               action="store", type="character", default=NA),
   make_option(c("-r","--organism"), help = "Name of organism (flu or rsv)", 
               action="store", type="character", default=NA),
-  make_option(c("-n","--verbose"),help = "Be verbose", 
+  make_option(c("-v","--verbose"),help = "Be verbose", 
               action="store_true", default=FALSE)
 )
 parser <- OptionParser(
@@ -111,12 +111,12 @@ main  <- function() {
   write.table(qc_stats, file = paste0(opts$output, '_qcTable.tsv'), sep = "\t", row.names = F, quote = F)
   write(qc_message, file = paste0(opts$output, '_qcTable.tsv'), append = T)
   
-  # RSV
+  #RSV
   if (opts$organism == "RSV") {
     names(data_aa_avg) = str_match(locations_aa, pattern = "(\\w+)/tables")[,2]
-    # plot
+    #plot
     final_out = plot_combine_rsv(data_avg = data_aa_avg, base_location = base_location)
-    # coverage table
+    # cov table
     locs = get_data_location(base_location = base_location, type = 'cov')
     coverage_data = get_table_data(locs, org = 'RSV')
     out_table = NULL
@@ -127,12 +127,11 @@ main  <- function() {
     write.table(out_table, file = paste0(opts$output, '_depthTable.tsv'), sep = "\t", row.names = F, quote = F)
     write(cov_message, file = paste0(opts$output, '_depthTable.tsv'), append = T)
   
-    # FLU
+    #FLU
   } else if (opts$organism == "FLU") {
     # rename
     file_names = tibble(
-      #sample = str_match(locations_aa, pattern = "(\\w+)/tables")[, 2],
-      sample = str_match(locations_aa, pattern = "([A-Za-z0-9_-]+_S\\d{1,3})\\/(?!\\/tables)")[, 2],
+      sample = str_match(locations_aa, pattern = "(\\w+)/tables")[, 2],
       file_name = str_match(locations_aa, pattern = "[A|B]_\\w{2,3}.+")) %>% 
       mutate(gene = str_replace(file_name, pattern = "-allAlleles.txt", replacement = "")) %>%
       mutate(sample_gene = paste0(sample, "/", gene))

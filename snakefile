@@ -1,7 +1,7 @@
 #############################################################################
 #                                                                           #
 #                           wfi  (WHO-FLU-IRMA)                             #
-#                   pipeline for the assembly of illumina/ont               #
+#         pipeline for the assembly of illumina short read data             #
 #                                                                           #
 #                          Created by Ammar Aziz                            #
 #                                                                           #
@@ -25,89 +25,77 @@ irma_path = "bin/flu-amd/"
 os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
 
 
-# global variables
+# environment variables
 configfile: "wfi_config.yaml"
 IFQ = config["input_dir"]
 workspace = config["output_dir"]
 org = config["organism"].upper()
-seq_technology = config["techology"].lower()
-secondary_assembly = config["secondary_assembly"]
-subset = config["subset"]
+subset = config["subset"] #keep only ha, na, mp
+secondary_assembly = config["second_assembly"]
 
 # set organism and gene segements (influenza) to keep
+if org in ['FLU', 'RSV']:
+    if org == 'FLU':
 
-if org == 'FLU':
-    if seq_technology == 'illumina':
+        # primary/secondary assembly settings
         if secondary_assembly is True:
             mode = 'FLU-secondary'
-        else:
+        elif secondary_assembly is False:
             mode = 'FLU'
-    elif seq_technology == 'ont' and secondary_assembly == False:
-        mode = 'FLU-minion'
-    else:
-        sys.exit(
-            f'Assembly mode unknown. Check config for options:\n'
-            f'organism {org}\n' 
-            f'secondary_assembly {secondary_assembly}\n'
-            f'techology {seq_technology}'
-            )
-
-    # gene segment settings
-    if subset is True:
-        seg_to_keep = "{HA,NA,MP}"
-    elif subset is False:
-        seg_to_keep = "{HA,NA,MP,NS,NP,PA,PB1,PB2}"
-    else:
-        sys.exit("Check config file for 'subset' param. If unsure set to: False")
-
-elif org == 'RSV':
-    seg_to_keep = "rsv_"
-    if seq_technology == 'illumina': 
-        if secondary_assembly is True:
-            mode = 'RSV-secondary'
         else:
-            mode = 'RSV'
-    elif seq_technology and secondary_assembly is False:
-        mode = 'RSV-minion'
-    else:
-        sys.exit(
-            f'Assembly mode unknown. Check config for options:\n'
-            f'organism {org}\n' 
-            f'secondary_assembly {secondary_assembly}\n'
-            f'techology {seq_technology}'
-            )
+            raise ValueError("Assembly mode unknown. Check config file for 'second_assembly', options MUST be either True or False. (exactly)")
 
-else:
-    raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
+        # gene segment settings
+        if subset is True:
+            seg_to_keep = "{HA,NA,MP}"
+            #seg_to_keep = 'subset'
+        elif subset is False:
+            seg_to_keep = "{HA,NA,MP,NS,NP,PA,PB1,PB2}"
+            #seg_to_keep = 'all'
+        else:
+            raise ValueError("Check config file for 'subset' param. If unsure set to: False")
+
+    elif org == 'RSV':
+        #print('Organism {}'.format(org), file = sys.stdout)
+        mode = 'RSV'
+        seg_to_keep = "rsv_"
+        #seg_to_keep = "rsv"
+
+    else:
+        raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
 
 ## Functions -------------------------------------------------------------------
 
-def fixNames(fafile, name, org):
-    sample_name, sample_number = name.split("_")
+def fixNames(fafile):
 
     if org == 'FLU':
         res = ""
-        listSeg = {"HA":"4","MP":"7","NA":"6","NP":"5","NS":"8","PA":"3","PB1":"2","PB2":"1"}
+        segment = ""
+        listSeg = ["HA","MP","NA","NP","NS","PA","PB1","PB2"]
+        sampleName = fafile.split("/")[-2].split("_")[0]
         for index, record in enumerate(SeqIO.parse(fafile, "fasta")):
-            gene = record.id.split("_")[1]
-            res += ">" + sample_name + "." + listSeg[gene] + "\n" + str(record.seq) + "\n"
+            segment = sub('^[A|B]_', '', record.description)
+            # for g in listSeg:
+            #     if g in record.description:
+            #         segment = g
+            res += ">" + sampleName + "_" + segment + "\n" + str(record.seq) + "\n"
         return(res)
 
     elif org == 'RSV':
         res = ""
+        sampleName = fafile.split("/")[-2].split("_")[0]
         for index, record in enumerate(SeqIO.parse(fafile, "fasta")):
-            res = ">" + sample_name + "\n" + str(record.seq) + "\n"
+            res = ">" + sampleName + "\n" + str(record.seq) + "\n"
         return(res)
 
     else:
-        sys.exit("Org not found. Error: fixNames")
+        raise ValueException("Org not found. Error: fixNames")
 
 
 ## Rules ------------------------------------------------------------------------
 
 #PAIRED READS
-SAMPLE_NAME, SAMPLE_NUMBER, lane_number, PAIR = glob_wildcards(IFQ + "/{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
-SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
+SAMPLES, PAIR = glob_wildcards(IFQ + "/{sample}_L001_{pair}_001.fastq.gz")
 
 rule all:
     input:
@@ -185,15 +173,11 @@ checkpoint irma:
 
 rule rename_fasta:
     input:
-        fasta = workspace + "assemblies/{sample}/contigs.fasta",
-        
+        fasta = workspace + "assemblies/{sample}/contigs.fasta"
     output:
         fasta = workspace + "assemblies/rename/{sample}.fasta"
-    params:
-        org = org,
-        sample_name = "{sample}"
     run:
-        newFasta = fixNames(fafile = input.fasta, name = params.sample_name, org = params.org)
+        newFasta  =  fixNames(input.fasta)
         with open(output.fasta, "w") as fo:
             fo.write(newFasta)
 
@@ -229,7 +213,7 @@ rule SummaryReport:
     input:
         expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES)
     output:
-        loc = temp(join(workspace + "assemblies/rename/process_complete.txt"))
+        loc = join(workspace + "assemblies/rename/process_complete.txt")
     params:
         ws = workspace + "assemblies/",
         loc_out = join(workspace + "assemblies/rename/"),

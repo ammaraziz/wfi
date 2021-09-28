@@ -4,29 +4,21 @@
 # snakemake --snakefile /path/to/wfi/snakefile -j 46 --configfile path/to/output_dir/wfi_config.yaml
 # for dry run (to test installation/run params) add -np
 
+# Change these parameters
+input_dir: /input/directory/with/fastq/files/
+output_dir: /output/directory/
 
-####################################
-############## Params ##############
-####################################
+organism: RSV # options are: FLU or RSV
 
-input_dir: /home/amar/Desktop/rsv_test/
-output_dir: /home/amar/Desktop/rsv_test/output/
+# these options are only for FLU
+subset: False # set to True if ha, na, mp are the only genes of interest
+second_assembly: False # secondary assembly - will increase run time substantially
 
-# Organism
-# [FLU, RSV, CoV, EBOLA, FLU_AD]
-organism: FLU 
 
-# Secondary assembly
-# [True, False]
-secondary_assembly: True 
 
-# Sequencing technology
-# [illumina, ont]
-techology: illumina
+#################################################
+#########Do not touch the below parameters#######
+#################################################
 
-# FLU Only
-# [True, False]
-# True = ha, na, mp
-# False = all genes
-subset: False
-
+# trimmomatic location
+trimmomatic: bin
