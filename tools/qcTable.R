@@ -44,12 +44,12 @@ calc_qc_stats = function(dat_out, org) {
   )
   if('altmatch' %in% colnames(dat_out)) {
     dat_out$match_adequate = NA_character_
-    dat_out$match_adequate[dat_out$match_adequate == TRUE] = 'ok'
+    dat_out$match_adequate[match_adequate == TRUE] = 'ok'
     dat_out$match_adequate[dat_out$match_adequate == FALSE] = 'FAILED'
     
-    dat_out$alt_metric[dat_out$alt_metric == TRUE] = NA_character_
-    dat_out$alt_metric[dat_out$alt_metric == TRUE] = "Mixture?" 
-    dat_out$alt_metric[dat_out$alt_metric == TRUE] = "-"
+    dat_out$alt_metric[alt_metric == TRUE] = NA_character_
+    dat_out$alt_metric[alt_metric == TRUE] = "Mixture?" 
+    dat_out$alt_metric[alt_metric == TRUE] = "-"
 
   } else{
     dat_out$match_adequate = rep(NA_character_, nrow(dat_out))
