@@ -43,65 +43,65 @@ onstart:
         print("")
         sleep(0.5)
 
-    # export IRMA into $PATH of linux
-    irma_path = "bin/flu-amd/"
-    os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
+# export IRMA into $PATH of linux
+irma_path = "bin/flu-amd/"
+os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
 
 
-    # global variables
-    configfile: "wfi_config.yaml"
-    IFQ = config["input_dir"]
-    workspace = config["output_dir"]
-    org = config["organism"].upper()
-    seq_technology = config["techology"].lower()
-    secondary_assembly = config["secondary_assembly"]
-    subset = config["subset"]
+# global variables
+configfile: "wfi_config.yaml"
+IFQ = config["input_dir"]
+workspace = config["output_dir"]
+org = config["organism"].upper()
+seq_technology = config["techology"].lower()
+secondary_assembly = config["secondary_assembly"]
+subset = config["subset"]
 
-    # set organism and gene segements (influenza) to keep
+# set organism and gene segements (influenza) to keep
 
-    if org == 'FLU':
-        if seq_technology == 'illumina':
-            if secondary_assembly is True:
-                mode = 'FLU-secondary'
-            else:
-                mode = 'FLU'
-        elif seq_technology == 'ont' and secondary_assembly == False:
-            mode = 'FLU-minion'
+if org == 'FLU':
+    if seq_technology == 'illumina':
+        if secondary_assembly is True:
+            mode = 'FLU-secondary'
         else:
-            sys.exit(
-                f'Assembly mode unknown. Check config for options:\n'
-                f'organism {org}\n' 
-                f'secondary_assembly {secondary_assembly}\n'
-                f'techology {seq_technology}'
-                )
-
-        # gene segment settings
-        if subset is True:
-            seg_to_keep = "{HA,NA,MP}"
-        elif subset is False:
-            seg_to_keep = "{HA,NA,MP,NS,NP,PA,PB1,PB2}"
-        else:
-            sys.exit("Check config file for 'subset' param. If unsure set to: False")
-
-    elif org == 'RSV':
-        seg_to_keep = "rsv_"
-        if seq_technology == 'illumina': 
-            if secondary_assembly is True:
-                mode = 'RSV-secondary'
-            else:
-                mode = 'RSV'
-        elif seq_technology and secondary_assembly is False:
-            mode = 'RSV-minion'
-        else:
-            sys.exit(
-                f'Assembly mode unknown. Check config for options:\n'
-                f'organism {org}\n' 
-                f'secondary_assembly {secondary_assembly}\n'
-                f'techology {seq_technology}'
-                )
-
+            mode = 'FLU'
+    elif seq_technology == 'ont' and secondary_assembly == False:
+        mode = 'FLU-minion'
     else:
-        raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
+        sys.exit(
+            f'Assembly mode unknown. Check config for options:\n'
+            f'organism {org}\n' 
+            f'secondary_assembly {secondary_assembly}\n'
+            f'techology {seq_technology}'
+            )
+
+    # gene segment settings
+    if subset is True:
+        seg_to_keep = "{HA,NA,MP}"
+    elif subset is False:
+        seg_to_keep = "{HA,NA,MP,NS,NP,PA,PB1,PB2}"
+    else:
+        sys.exit("Check config file for 'subset' param. If unsure set to: False")
+
+elif org == 'RSV':
+    seg_to_keep = "rsv_"
+    if seq_technology == 'illumina': 
+        if secondary_assembly is True:
+            mode = 'RSV-secondary'
+        else:
+            mode = 'RSV'
+    elif seq_technology and secondary_assembly is False:
+        mode = 'RSV-minion'
+    else:
+        sys.exit(
+            f'Assembly mode unknown. Check config for options:\n'
+            f'organism {org}\n' 
+            f'secondary_assembly {secondary_assembly}\n'
+            f'techology {seq_technology}'
+            )
+
+else:
+    raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
 
 onsuccess:
     print("wfi has successfully completed!")
