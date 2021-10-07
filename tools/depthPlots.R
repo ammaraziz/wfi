@@ -155,8 +155,13 @@ plot_rsv_cov <- function(df_avg, plot_name, base_location) {
     path = paste(base_location, plot_name, sep = "/"),
     pattern = ".vcf", full.names = T
   )
-
-  minor_vars <- get_minor_vars(vcf)
+  
+  tryCatch(expr = {
+    minor_vars <- get_minor_vars(vcf)}, 
+    error = function(e) {
+     stop(message(paste0("Error, sample names contains illegal characters, please remove: ", plot_name)))
+    }
+  )
 
   if (minor_vars == 0 | minor_vars == 00) {
     annotations <- list()

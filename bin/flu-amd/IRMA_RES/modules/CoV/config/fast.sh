@@ -1,0 +1,17 @@
+# HEADER
+PARAM_FILE_NAME="fast"
+PARAM_FILE_AUTHOR="S. Shepard"
+PARAM_FILE_VERSION="1.0"
+PARAM_FILE_DATE="2020-04"
+
+# READ GATHERING & ASSEMBLY
+MAX_ROUNDS=1		# max read gather rounds
+MAX_ITER_ASSEM=2	# max SSW iterations to perform
+
+GRID_ON=1		# needs "qsub" and a NFS install of IRMA
+
+# STAGES
+MATCH_PROG="BLAT"
+SORT_PROG="BLAT"
+ALIGN_PROG="BLAT"
+ASSEM_PROG="SSW"

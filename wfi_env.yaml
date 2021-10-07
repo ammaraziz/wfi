@@ -13,6 +13,7 @@ dependencies:
   - r-cowplot
   - r-gridExtra
   - pip
+  - GitPython
   - pip:
     - snakemake
     - cutadapt

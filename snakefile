@@ -12,14 +12,37 @@
 #                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
-version = 0.1
+version = 0.2
 
 import subprocess, sys, os, glob, shutil
+from time import sleep
 from re import sub
 from os.path import join #needed?
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+import git
+
+# check new version on github
+print("Checking if new version of wfi pipeline is available!")
+print("...")
+repo = git.Repo(".")
+repo.remotes.origin.pull()
+sleep(0.5)
+current = repo.head.commit
+repo.remotes.origin.pull()
+if current != repo.head.commit:
+    print("New version found and installed!")
+    print("pipeline will now run as usual.")
+    sleep(0.5)
+else:
+    print("You have the latest version!")
+    print("...")
+    print("")
+    print("")
+    sleep(0.5)
+
+
 
 # export IRMA into $PATH of linux
 irma_path = "bin/flu-amd/"
@@ -204,7 +227,7 @@ rule subTypeSort:
     input:
         fasta = workspace + "assemblies/rename/{sample}.fasta"
     output:
-        tmp = workspace + "assemblies/rename/{sample}.txt"
+        tmp = temp(workspace + "assemblies/rename/{sample}.txt")
     params:
         ws = workspace,
         fasta = workspace + "assemblies/{sample}/contigs.fasta",

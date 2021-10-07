@@ -34,8 +34,8 @@ usage_message = "Failed to parse command-line parameters.
 
 This script parses IRMA output files in a directory to produce useful plots collated in one location. 
 Usage:
-      tmp_script.R -i [INPUTDIR] -o [OUTPUTDIR] -r [FLU or RSV]
-      tmp_script.R -i .../assemblies/ -o .../report/ -r flu
+      summaryReport.R -i [INPUTDIR] -o [OUTPUTDIR] -r [FLU or RSV]
+      summaryReport.R -i .../assemblies/ -o .../report/ -r flu
 
 Input directory needs to be the wfi output directory called 'assemblies'
 The -r or --organism flag is needed because IRMA produces a file for each assembled contig (for flu thats 8 genes)
