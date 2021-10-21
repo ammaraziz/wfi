@@ -12,16 +12,15 @@
 #                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
-version = 0.2
+version = 0.3
 
 import subprocess, sys, os, glob, shutil
 from time import sleep
 from re import sub
-from os.path import join #needed?
+from os.path import join
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-import git
 
 # check new version on github
 # onstart:
@@ -62,16 +61,16 @@ subset = config["subset"]
 if org == 'FLU':
     if seq_technology == 'illumina':
         if secondary_assembly is True:
-            mode = 'FLU-secondary'
+            irma_module = 'FLU-secondary'
         else:
-            mode = 'FLU'
+            irma_module = 'FLU'
     elif seq_technology == 'ont' and secondary_assembly == False:
-        mode = 'FLU-minion'
+        irma_module = 'FLU-minion'
     elif seq_technology == 'pgm' and secondary_assembly == False:
-        mode = 'FLU-pgm'
+        irma_module = 'FLU-pgm'
     else:
         sys.exit(
-            f'Assembly mode unknown. Check config for options:\n'
+            f'Assembly module unknown. Check config for options:\n'
             f'organism {org}\n' 
             f'secondary_assembly {secondary_assembly}\n'
             f'techology {seq_technology}'
@@ -89,14 +88,14 @@ elif org == 'RSV':
     seg_to_keep = "rsv_"
     if seq_technology == 'illumina': 
         if secondary_assembly is True:
-            mode = 'RSV-secondary'
+            irma_module = 'RSV-secondary'
         else:
-            mode = 'RSV'
+            irma_module = 'RSV'
     elif seq_technology and secondary_assembly is False:
-        mode = 'RSV-minion'
+        irma_module = 'RSV-minion'
     else:
         sys.exit(
-            f'Assembly mode unknown. Check config for options:\n'
+            f'Assembly module unknown. Check config for options:\n'
             f'organism {org}\n' 
             f'secondary_assembly {secondary_assembly}\n'
             f'techology {seq_technology}'
@@ -133,98 +132,184 @@ def fixNames(fafile, name, org):
     else:
         sys.exit("Org not found. Error: fixNames")
 
-
-## Rules ------------------------------------------------------------------------
-
-#PAIRED READS
+## Sequencing technology ------------------------------------------------------------------------
 if seq_technology == 'illumina':
     SAMPLE_NAME, SAMPLE_NUMBER, lane_number, PAIR = glob_wildcards(IFQ + "/{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
     SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
+    run_mode = 'paired'
 elif seq_technology == 'ont':
-    SAMPLE_NAME, SAMPLE_NUMBER = glob_wildcards(IFQ + "/{sample_name}_{sample_number}.fastq.gz")
-    SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
-elif seq_technology == 'pgm':
-    SAMPLE_NAME = glob_wildcards(IFQ + "/{sample_name}.fastq.gz")[0]
+    SAMPLE_NAME = glob_wildcards(IFQ + config['pattern_ont'])[0]
     SAMPLES = SAMPLE_NAME
-    
+    run_mode = 'single'
+elif seq_technology == 'pgm':
+    SAMPLE_NAME = glob_wildcards(IFQ + config['pattern_pgm'])[0]
+    SAMPLES = SAMPLE_NAME
+    run_mode = 'single'
+
+## Mode ------------------------------------------------------------------------
+
+if run_mode == 'paired':
+    rule_mode = [expand(workspace + "qualtrim/{sample}.R1.fastq", sample = SAMPLES),
+    expand(workspace + "qualtrim/{sample}.R2.fastq", sample = SAMPLES)]
+elif run_mode == 'single':
+    rule_mode = [expand(workspace + "qualtrim/{sample}.fastq", sample = SAMPLES)]
+
+## Message ------------------------------------------------------------------------
+print("Run mode: " + run_mode)
+print("Sequence Technology: " + seq_technology)
+print("Organism: " + org)
+print("IRMA Module: " + irma_module)
+print("Secondary Assembly: " + str(secondary_assembly))
+print("\n")
+## Rules ------------------------------------------------------------------------
+
 rule all:
     input:
-        expand(workspace + "qualtrim/{sample}.R1.paired.fastq", sample = SAMPLES),
-        expand(workspace + "qualtrim/{sample}.R2.paired.fastq", sample = SAMPLES),
+        # filter
+        rule_mode,
+        # irma
         expand(workspace + "assemblies/{sample}/contigs.fasta", sample = SAMPLES),
         expand(workspace + "assemblies/rename/{sample}.fasta", sample = SAMPLES),
-        expand(workspace + "assemblies/rename/{sample}.txt", sample = SAMPLES),
-        expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES),
-        join(workspace + "assemblies/rename/process_complete.txt")
+        # status
+        expand(workspace + "status/filter_{sample}.txt", sample = SAMPLES),
+        expand(workspace + "status/subTypeSort_{sample}.txt", sample = SAMPLES),
+        expand(workspace + "status/irma_{sample}.txt", sample = SAMPLES),
+        join(workspace + "status/process_complete.txt")
+
 
 #QUALITY FILTER
-rule filter:
-    input:
-        faR1 = expand(IFQ + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R1"]),
-        faR2 = expand(IFQ + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R2"])
-    output:
-        R1out = workspace + "qualtrim/{sample}.R1.paired.fastq",
-        R2out = workspace + "qualtrim/{sample}.R2.paired.fastq"
-    params:
-       Fadapter = f"bin/adapters/{org}_f.fa",
-       Radapter = f"bin/adapters/{org}_r.fa"
-    threads: 2
-    message: "Filtering and trimming {input.faR1} reads."
-    log: workspace + "logs/trim_{sample}.txt"
-    shell:"""
-      #cutadapt
-      cutadapt {input.faR1} {input.faR2} \
-      -j {threads} \
-      -g file:{params.Fadapter} \
-      -A file:{params.Radapter} \
-      -o {output.R1out} \
-      -p {output.R2out} \
-      --report full 1> {log}
-    """
+if run_mode == 'paired':
+    rule filter_paired:
+        input:
+            faR1 = expand(IFQ + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R1"]),
+            faR2 = expand(IFQ + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R2"])
+        output:
+            R1out = workspace + "qualtrim/{sample}.R1.fastq",
+            R2out = workspace + "qualtrim/{sample}.R2.fastq",
+            status = workspace + "status/filter_{sample}.txt"
+        params:
+           Fadapter = f"bin/adapters/{org}_f.fa",
+           Radapter = f"bin/adapters/{org}_r.fa"
+        threads: 2
+        message: "Filtering and trimming {input.faR1} reads."
+        log: workspace + "logs/trim_{sample}.txt"
+        shell:"""
+          #cutadapt
+          cutadapt {input.faR1} {input.faR2} \
+          -j {threads} \
+          -g file:{params.Fadapter} \
+          -A file:{params.Radapter} \
+          -o {output.R1out} \
+          -p {output.R2out} \
+          --report full 1> {log}
 
-#Assembly IRMA
-checkpoint irma:
-    input:
-        R1out = workspace + "qualtrim/{sample}.R1.paired.fastq",
-        R2out = workspace + "qualtrim/{sample}.R2.paired.fastq"
-    output:
-        contigs = workspace + "assemblies/{sample}/contigs.fasta",
-        status = temp(workspace + "assemblies/{sample}/irma_status.txt")
-    params:
-        sample_name = "{sample}",
-        afolder = workspace + "assemblies/",
-        folder = workspace + "assemblies/{sample}/",
-        segs = lambda widlcards: seg_to_keep,
-        run_mode = lambda wildcards: mode,
-        vcf_loc = workspace + 'vcf/' + "{sample}/"
-    log: workspace + "logs/irma_{sample}.txt"
-    message: "IRMA is running for {input.R1out}"
-    threads: 10
-    shell:"""
-        # run IRMA
-        IRMA {params.run_mode} {input.R1out} {input.R2out} {params.sample_name} 1>> {log}
-        # move output to folder
-        mv $PWD/{params.sample_name} {params.afolder}
+          touch {output.status}
+        """
 
-        myarray=(`find ./ -maxdepth 1 -name "*.fasta"`)
-        if [[ ${{myarray[@]}} -gt 0 ]]
-        echo ${{myarray[@]}}
-        then
-            cat {params.folder}*.fasta 1> {output.contigs} 2>> {log}
-            #python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
-            cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
-            mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
-            echo irma produced stuff this is temp ignore > {output.status}
-        else
-            echo temp file ignore > {output.contigs}
-            touch temp file ignore > {output.status}
+    #Assembly IRMA
+    checkpoint irma_paired:
+        input:
+            R1out = workspace + "qualtrim/{sample}.R1.fastq",
+            R2out = workspace + "qualtrim/{sample}.R2.fastq"
+        output:
+            contigs = workspace + "assemblies/{sample}/contigs.fasta",
+            status = workspace + "status/irma_{sample}.txt"
+        params:
+            sample_name = "{sample}",
+            afolder = workspace + "assemblies/",
+            folder = workspace + "assemblies/{sample}/",
+            segs = lambda widlcards: seg_to_keep,
+            run_module = lambda wildcards: irma_module,
+            vcf_loc = workspace + 'vcf/' + "{sample}/"
+        log: workspace + "logs/irma_{sample}.txt"
+        message: "IRMA is running for {input.R1out}"
+        threads: 10
+        shell:"""
+            # run IRMA
+            IRMA {params.run_module} {input.R1out} {input.R2out} {params.sample_name} 1>> {log}
+            # move output to folder
+            mv $PWD/{params.sample_name} {params.afolder}
+
+            myarray=(`find ./ -maxdepth 1 -name "*.fasta"`)
+            if [[ ${{myarray[@]}} -gt 0 ]]
+                echo ${{myarray[@]}}
+            then
+                cat {params.folder}*.fasta 1> {output.contigs} 2>> {log}
+                #python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
+                cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
+                mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
+                echo irma produced stuff this is temp ignore > {output.status}
+            else
+                echo temp file ignore > {output.contigs}
+                touch temp file ignore > {output.status}
         fi
     """
+
+elif run_mode == 'single':
+    rule filter_single:
+        input:
+            single = expand(IFQ + "{{sample}}.fastq.gz"),
+        output:
+            filtered = workspace + "qualtrim/{sample}.fastq",
+            status = workspace + "status/filter_{sample}.txt"
+        params:
+           Fadapter = f"bin/adapters/{org}_f.fa",
+           Radapter = f"bin/adapters/{org}_r.fa"
+        threads: 2
+        message: "Trimming {input.single} reads."
+        log: workspace + "logs/trim_{sample}.txt"
+        shell:"""
+          cutadapt {input.single}\
+          -j {threads} \
+          -g file:{params.Fadapter} \
+          -a file:{params.Radapter} \
+          -o {output.filtered} \
+          --report full 1> {log}
+
+          touch {output.status}
+        """
+
+    checkpoint irma_single:
+        input:
+            single = workspace + "qualtrim/{sample}.fastq"
+        output:
+            contigs = workspace + "assemblies/{sample}/contigs.fasta",
+            status = workspace + "status/irma_{sample}.txt"
+        params:
+            sample_name = "{sample}",
+            afolder = workspace + "assemblies/",
+            folder = workspace + "assemblies/{sample}/",
+            segs = lambda widlcards: seg_to_keep,
+            run_module = lambda wildcards: irma_module,
+            vcf_loc = workspace + 'vcf/' + "{sample}/"
+        log: workspace + "logs/irma_{sample}.txt"
+        message: "IRMA is running for {input.single}"
+        threads: 10
+        shell:"""
+            # run IRMA
+            IRMA {params.run_module} {input.single} {params.sample_name} 1>> {log}
+            # move output to folder
+            mv $PWD/{params.sample_name} {params.afolder}
+
+            myarray=(`find ./ -maxdepth 1 -name "*.fasta"`)
+            if [[ ${{myarray[@]}} -gt 0 ]]
+                echo ${{myarray[@]}}
+            then
+                cat {params.folder}*.fasta 1> {output.contigs} 2>> {log}
+                cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
+                mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
+                echo irma produced stuff this is temp ignore > {output.status}
+            else
+                echo temp file ignore > {output.contigs}
+                touch temp file ignore > {output.status}
+            fi
+        """
+else: 
+    sys.exit("Something went wrong with the filter+irma command")
 
 rule rename_fasta:
     input:
         fasta = workspace + "assemblies/{sample}/contigs.fasta",
-        
     output:
         fasta = workspace + "assemblies/rename/{sample}.fasta"
     params:
@@ -241,7 +326,7 @@ rule subTypeSort:
     input:
         fasta = workspace + "assemblies/rename/{sample}.fasta"
     output:
-        tmp = temp(workspace + "assemblies/rename/{sample}.txt")
+        status = workspace + "status/subTypeSort_{sample}.txt"
     params:
         ws = workspace,
         fasta = workspace + "assemblies/{sample}/contigs.fasta",
@@ -250,7 +335,7 @@ rule subTypeSort:
         if params.org == 'FLU':
             shell: """
                 python ./tools/groupSubtypeIRMA.py {params.fasta} {params.ws}
-                echo temp file ignore > {output.tmp}
+                echo temp file ignore > {output.status}
             """
 
         elif params.org == 'RSV':
@@ -260,14 +345,14 @@ rule subTypeSort:
 
         else:
             shell: """
-            touch {output.tmp}
+            touch {output.status}
             """
 
 rule SummaryReport:
     input:
-        expand(workspace + "assemblies/{sample}/irma_status.txt", sample = SAMPLES)
+        expand(workspace + "status/irma_{sample}.txt", sample = SAMPLES)
     output:
-        loc = temp(join(workspace + "assemblies/rename/process_complete.txt"))
+        loc = join(workspace + "status/process_complete.txt")
     params:
         ws = workspace + "assemblies/",
         loc_out = join(workspace + "assemblies/rename/"),
