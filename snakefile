@@ -21,6 +21,7 @@ from os.path import join
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+import snakemake
 
 # check new version on github
 # onstart:
@@ -41,6 +42,37 @@ from Bio.SeqRecord import SeqRecord
 #         print("")
 #         print("")
 #         sleep(0.5)
+
+onstart:
+    print("Checking for updates or modifications to workflow")
+    import git
+    repo_dir = os.path.dirname(workflow.snakefile)
+    repo = git.Repo(repo_dir)
+    assert not repo.bare
+    repo_git = repo.git
+    stat = repo_git.diff('origin/master')
+    if stat != "":
+        print()
+        print("#")
+        print("##")
+        print("###")
+        print("####")
+        print("#####")
+        print("######")
+        print()
+        print('PSA: There is a new version of wfi! please install the new version.')
+        print()
+        print("######")
+        print("#####")
+        print("####")
+        print("###")
+        print("##")
+        print("#")
+        time.sleep(2)
+    else:
+        print("No updates or modifications found")
+
+
 
 # export IRMA into $PATH of linux
 irma_path = "bin/flu-amd/"
