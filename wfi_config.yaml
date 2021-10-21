@@ -21,8 +21,9 @@ organism: FLU
 secondary_assembly: True 
 
 # Sequencing technology
-# [illumina, ont]
+# [illumina, ont, pgm]
 techology: illumina
+
 
 # FLU Only
 # [True, False]

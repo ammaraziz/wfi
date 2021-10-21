@@ -24,24 +24,24 @@ from Bio.SeqRecord import SeqRecord
 import git
 
 # check new version on github
-onstart:
-    print("Checking if new version of wfi pipeline is available!")
-    print("...")
-    repo = git.Repo(".")
-    repo.remotes.origin.pull()
-    sleep(0.5)
-    current = repo.head.commit
-    repo.remotes.origin.pull()
-    if current != repo.head.commit:
-        print("New version found and installed!")
-        print("pipeline will now run as usual.")
-        sleep(0.5)
-    else:
-        print("You have the latest version!")
-        print("...")
-        print("")
-        print("")
-        sleep(0.5)
+# onstart:
+#     print("Checking if new version of wfi pipeline is available!")
+#     print("...")
+#     repo = git.Repo(".")
+#     repo.remotes.origin.pull()
+#     sleep(0.5)
+#     current = repo.head.commit
+#     repo.remotes.origin.pull()
+#     if current != repo.head.commit:
+#         print("New version found and installed!")
+#         print("pipeline will now run as usual.")
+#         sleep(0.5)
+#     else:
+#         print("You have the latest version!")
+#         print("...")
+#         print("")
+#         print("")
+#         sleep(0.5)
 
 # export IRMA into $PATH of linux
 irma_path = "bin/flu-amd/"
@@ -135,9 +135,15 @@ def fixNames(fafile, name, org):
 ## Rules ------------------------------------------------------------------------
 
 #PAIRED READS
-SAMPLE_NAME, SAMPLE_NUMBER, lane_number, PAIR = glob_wildcards(IFQ + "/{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
-SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
-
+if seq_technology == 'illumina':
+    SAMPLE_NAME, SAMPLE_NUMBER, lane_number, PAIR = glob_wildcards(IFQ + "/{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
+    SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
+elif seq_technology == 'ont':
+    SAMPLE_NAME, SAMPLE_NUMBER, PAIR = glob_wildcards(IFQ + "/{sample_name}_{sample_number}_{pair}.fastq.gz")
+    SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
+elif seq_technology == 'pgm':
+    SAMPLE_NAME = glob_wildcards(IFQ + "/{sample_name}.fastq.gz")[0]
+    SAMPLES = SAMPLE_NAME
 rule all:
     input:
         expand(workspace + "qualtrim/{sample}.R1.paired.fastq", sample = SAMPLES),
@@ -198,7 +204,7 @@ checkpoint irma:
         mv $PWD/{params.sample_name} {params.afolder}
 
         myarray=(`find ./ -maxdepth 1 -name "*.fasta"`)
-        if [ ${{#myarray[@]}} -gt 0 ]
+        if [[ ${{myarray[@]}} -gt 0 ]]
         echo ${{myarray[@]}}
         then
             cat {params.folder}*.fasta 1> {output.contigs} 2>> {log}
