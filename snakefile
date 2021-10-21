@@ -67,6 +67,8 @@ if org == 'FLU':
             mode = 'FLU'
     elif seq_technology == 'ont' and secondary_assembly == False:
         mode = 'FLU-minion'
+    elif seq_technology == 'pgm' and secondary_assembly == False:
+        mode = 'FLU-pgm'
     else:
         sys.exit(
             f'Assembly mode unknown. Check config for options:\n'
@@ -139,11 +141,12 @@ if seq_technology == 'illumina':
     SAMPLE_NAME, SAMPLE_NUMBER, lane_number, PAIR = glob_wildcards(IFQ + "/{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
     SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
 elif seq_technology == 'ont':
-    SAMPLE_NAME, SAMPLE_NUMBER, PAIR = glob_wildcards(IFQ + "/{sample_name}_{sample_number}_{pair}.fastq.gz")
+    SAMPLE_NAME, SAMPLE_NUMBER = glob_wildcards(IFQ + "/{sample_name}_{sample_number}.fastq.gz")
     SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
 elif seq_technology == 'pgm':
     SAMPLE_NAME = glob_wildcards(IFQ + "/{sample_name}.fastq.gz")[0]
     SAMPLES = SAMPLE_NAME
+    
 rule all:
     input:
         expand(workspace + "qualtrim/{sample}.R1.paired.fastq", sample = SAMPLES),
