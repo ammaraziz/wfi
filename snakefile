@@ -23,57 +23,6 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 import snakemake
 
-# check new version on github
-# onstart:
-#     print("Checking if new version of wfi pipeline is available!")
-#     print("...")
-#     repo = git.Repo(".")
-#     repo.remotes.origin.pull()
-#     sleep(0.5)
-#     current = repo.head.commit
-#     repo.remotes.origin.pull()
-#     if current != repo.head.commit:
-#         print("New version found and installed!")
-#         print("pipeline will now run as usual.")
-#         sleep(0.5)
-#     else:
-#         print("You have the latest version!")
-#         print("...")
-#         print("")
-#         print("")
-#         sleep(0.5)
-
-onstart:
-    print("Checking for updates or modifications to workflow")
-    import git
-    repo_dir = os.path.dirname(workflow.snakefile)
-    repo = git.Repo(repo_dir)
-    assert not repo.bare
-    repo_git = repo.git
-    stat = repo_git.diff('origin/master')
-    if stat != "":
-        print()
-        print("#")
-        print("##")
-        print("###")
-        print("####")
-        print("#####")
-        print("######")
-        print()
-        print('PSA: There is a new version of wfi! please install the new version.')
-        print()
-        print("######")
-        print("#####")
-        print("####")
-        print("###")
-        print("##")
-        print("#")
-        time.sleep(2)
-    else:
-        print("No updates or modifications found")
-
-
-
 # export IRMA into $PATH of linux
 irma_path = "bin/flu-amd/"
 os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
@@ -209,8 +158,9 @@ rule all:
         join(workspace + "status/process_complete.txt")
 
 
-#QUALITY FILTER
+
 if run_mode == 'paired':
+    # Filter
     rule filter_paired:
         input:
             faR1 = expand(IFQ + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R1"]),
@@ -226,7 +176,6 @@ if run_mode == 'paired':
         message: "Filtering and trimming {input.faR1} reads."
         log: workspace + "logs/trim_{sample}.txt"
         shell:"""
-          #cutadapt
           cutadapt {input.faR1} {input.faR2} \
           -j {threads} \
           -g file:{params.Fadapter} \
@@ -238,7 +187,7 @@ if run_mode == 'paired':
           touch {output.status}
         """
 
-    #Assembly IRMA
+    # Assembly
     checkpoint irma_paired:
         input:
             R1out = workspace + "qualtrim/{sample}.R1.fastq",
@@ -250,7 +199,7 @@ if run_mode == 'paired':
             sample_name = "{sample}",
             afolder = workspace + "assemblies/",
             folder = workspace + "assemblies/{sample}/",
-            segs = lambda widlcards: seg_to_keep,
+            segs = subset,
             run_module = lambda wildcards: irma_module,
             vcf_loc = workspace + 'vcf/' + "{sample}/"
         log: workspace + "logs/irma_{sample}.txt"
@@ -259,6 +208,7 @@ if run_mode == 'paired':
         shell:"""
             # run IRMA
             IRMA {params.run_module} {input.R1out} {input.R2out} {params.sample_name} 1>> {log}
+            
             # move output to folder
             mv $PWD/{params.sample_name} {params.afolder}
 
@@ -266,8 +216,8 @@ if run_mode == 'paired':
             if [[ ${{myarray[@]}} -gt 0 ]]
                 echo ${{myarray[@]}}
             then
-                cat {params.folder}*.fasta 1> {output.contigs} 2>> {log}
-                #python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
+                #cat {params.folder}*.fasta 1> {output.contigs} 2>> {log}
+                python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
                 cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
                 mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
                 echo irma produced stuff this is temp ignore > {output.status}
@@ -327,7 +277,7 @@ elif run_mode == 'single':
             if [[ ${{myarray[@]}} -gt 0 ]]
                 echo ${{myarray[@]}}
             then
-                cat {params.folder}*.fasta 1> {output.contigs} 2>> {log}
+                python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
                 cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
                 mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
                 echo irma produced stuff this is temp ignore > {output.status}

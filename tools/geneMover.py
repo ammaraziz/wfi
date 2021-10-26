@@ -10,11 +10,9 @@ import os
 import shutil
 from pathlib import Path
 
-print(len(sys.argv) != 1)
-
 if len(sys.argv) == 1:
     sys.exit('''
-    geneMover.py - Combines fasta files from in a given directory
+    geneMover.py - Combines fasta files from a given directory
 
     Usage: 
         geneMover.py sourceFolder destination_file [subset, all, rsv]
@@ -38,7 +36,7 @@ if segs in ['all', 'subset', 'rsv']:
     elif segs == 'subset':
         seg_to_keep = ['HA', 'NA', 'MP']
     elif segs == 'rsv':
-        seg_to_keep = ['rsv']
+        seg_to_keep = ['RSV']
 else:
     sys.exit("Error - subset (argument #3) must be: all, subset, rsv")
 
@@ -46,7 +44,8 @@ else:
 filenames = glob.iglob(os.path.join(src, "*.fasta"))
 with open(dst, 'w') as outfile:
     for fname in filenames:
-        if Path(fname).stem.upper() in seg_to_keep:
+        if len(set(Path(fname).stem.upper().split('_')) & set(seg_to_keep)) > 0:
+            print('yes')
             with open(fname) as infile:
                 for line in infile:
                     outfile.write(line)
