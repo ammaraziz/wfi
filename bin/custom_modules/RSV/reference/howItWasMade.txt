@@ -1,0 +1,9 @@
+The plurality consensus was created  download all avaliable complete RSV gnomes, aligning against a reference for A/B subtypes.
+
+Followed by cleanup to remove any gaps introduced by low quality positions.
+
+Then  EMBOSS con was used to create a consensus.
+
+Another round of cleanup and manual checking for low quality bases before plurality of consensus was created.
+
+Any ambiguious bases eg 50/50 A/T, a nucleotdie was chosen at random.

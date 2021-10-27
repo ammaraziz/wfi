@@ -1,0 +1,8 @@
+Weights from alignment method 1 (karplus), b=-1.000000, e=0.500000
+% Method: karplus (1)  Bits to save: -1.000000 Exponent 0.500000
+% 1 sequence with 15213 columns
+% total weight limited to 1.000000
+% total_weight: 1.000000 
+1	1
+% ID	Weight
+rsv_a1	1.000000
