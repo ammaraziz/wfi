@@ -78,9 +78,12 @@ gcolor = list("A_HA_H1" = '#a6cee3',
               "A_HA_H5" = '#a6cee3',
               "A_HA_H7" ='#a6cee3',
               "A_HA_H9" ='#a6cee3',
+              "A_HA_H10" = '#a6cee3',
               "A_MP" = '#1f78b4',
               "A_NA_N1" = '#b2df8a',
               "A_NA_N2" = '#b2df8a',
+              "A_NA_N4" = '#b2df8a',
+              "A_NA_N5" = '#b2df8a',
               "A_NA_N6" = '#b2df8a',
               "A_NA_N7" = '#b2df8a',
               "A_NP" = '#33a02c',
@@ -111,66 +114,46 @@ main  <- function() {
   write(paste0("organism: ", opts$organism), stdout())
   write(paste0("input: ", opts$input), stdout())
   write(paste0("output: ", opts$output), stdout())
-
+  opts$organism = toupper(opts$organism)
+  
+  # get file names
   base_location = as.character(opts$input)
-
-  locations_aa = get_data_location(base_location, type = 'aa')
-  data_aa = get_data(locations_aa)
-  data_aa_avg = lapply(data_aa, FUN = average_counts, type = 'aa', by_num = 5)
-
+  file_names = file_finder(base_location)
+  
+  # calc average depth
+  data_aa = get_data(file_location = file_names$alleleDepth, file_name = file_names$full_name)
+  data_aa_df = data.frame(full_name = names(data_aa))
+  data_aa_df$data_aa = data_aa
+  file_names = left_join(file_names, data_aa_df, by = "full_name")
+  # clean up
+  rm(data_aa, data_aa_df)
+  
   # qc table
   qc_loc = get_data_location(base_location = base_location, type = 'rc')
   qc_data = get_qc_data(qc_loc)
-  qc_stats = calc_qc_stats(qc_data, org = 'RSV')#opts$organism)
-  write.table(qc_stats, file = paste0(opts$output, '_qcTable.tsv'), sep = "\t", row.names = F, quote = F)
-  write(qc_message, file = paste0(opts$output, '_qcTable.tsv'), append = T)
+  qc_stats = calc_qc_stats(qc_data, org = opts$organism)
+  write.table(qc_stats, file = paste0(opts$output, 'summary_QC_table.tsv'), sep = "\t", row.names = F, quote = F)
+  write(qc_message, file = paste0(opts$output, 'summary_QC_table.tsv'), append = T)
   
-  # RSV
-  if (opts$organism == "RSV") {
-    names(data_aa_avg) = str_match(locations_aa, pattern = "(\\w+)/tables")[,2]
-    # plot
-    final_out = plot_combine_rsv(data_avg = data_aa_avg, base_location = base_location)
-    # coverage table
-    locs = get_data_location(base_location = base_location, type = 'cov')
-    coverage_data = get_table_data(locs, org = 'RSV')
-    out_table = NULL
-    for (i in coverage_data) {
-      tmp = calc_stats(i, org = 'RSV')
-      out_table = rbind(tmp, out_table)
-    }
-    write.table(out_table, file = paste0(opts$output, '_depthTable.tsv'), sep = "\t", row.names = F, quote = F)
-    write(cov_message, file = paste0(opts$output, '_depthTable.tsv'), append = T)
+  # coverage table
+  locs = get_data_location(base_location = base_location, type = 'cov')
+  coverage_data = get_table_data(locs, org = opts$organism)
+  out_table = NULL
+  for (i in coverage_data) {
+    tmp = calc_stats(i, org = opts$organism)
+    out_table = rbind(tmp, out_table)
+  }
+  write.table(out_table, file = paste0(opts$output, 'summary_depth_table.tsv'), sep = "\t", row.names = F, quote = F)
+  write(cov_message, file = paste0(opts$output, 'summary_depth_table.tsv'), append = T)
   
-    # FLU
-  } else if (opts$organism == "FLU") {
-    # rename
-    file_names = tibble(
-      #sample = str_match(locations_aa, pattern = "(\\w+)/tables")[, 2],
-      sample = str_match(locations_aa, pattern = "([A-Za-z0-9_-]+_S\\d{1,3})\\/(?!\\/tables)")[, 2],
-      file_name = str_match(locations_aa, pattern = "[A|B]_\\w{2,3}.+")) %>% 
-      mutate(gene = str_replace(file_name, pattern = "-allAlleles.txt", replacement = "")) %>%
-      mutate(sample_gene = paste0(sample, "/", gene))
-    
-    names(data_aa_avg) = file_names$sample_gene
-    ##plot
-    final_out = plot_combine_flu(data_avg = data_aa_avg,
-                             gene = file_names$gene,
-                             sample = file_names$sample,
-                             base_location = base_location)
-    ## cov table
-    locs = get_data_location(base_location = base_location, type = 'cov')
-    coverage_data = get_table_data(locs, org = 'FLU')
-    out_table = NULL
-    for (i in coverage_data) {
-      tmp = calc_stats(i, org = 'FLU')
-      out_table = rbind(tmp, out_table)
-    }
-    write.table(out_table, file = paste0(opts$output, '_depthTable.tsv'), sep = "\t", row.names = F, quote = F)
-    write(cov_message, file = paste0(opts$output, '_depthTable.tsv'), append = T)
+  if (opts$organism == "RSV") {# RSV
+    final_out = plot_combine_rsv(file_names)
+  } else if (opts$organism == "FLU") {# FLU
+    final_out = plot_combine_flu(file_names)
   } else {
     stop("Error: Organism not RSV or FLU. Check input")
   }
-  ggsave(filename =  paste0(opts$output, "depthReport.pdf"),
+  ggsave(filename =  paste0(opts$output, "depth_coverage_report.pdf"),
          plot = final_out, device = "pdf",
          dpi = 300,  width = 420, height = 297, units = 'mm')
 }
