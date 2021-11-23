@@ -43,7 +43,7 @@ In the future the installation process will be simplified, I promise! Any issues
 
 To use the pipeline, follow these steps:
 
-1. Navigate toModify `wfi_config.yaml`:
+1. Navigate to `wfi_config.yaml` and modify as appropriate:
 ```
 1. input_dir		input directory - location of the raw fastq files for input.
 2. output_dir		output directory - location to output results - same dir where the config sits.
