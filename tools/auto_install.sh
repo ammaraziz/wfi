@@ -17,7 +17,7 @@ fail() {
 }
 
 oops() {
-	printf '\e[33;1mOops:%s\e[0m\n'	"$1"	 1>&2
+	printf '\e[33;1mS: %s\e[0m\n'	"$1"	 1>&2
 }
 
 title() {
@@ -25,7 +25,7 @@ title() {
 }
 
 message() {
-	printf '\e[37;1m%s\t%s\e[0m\n' "$1" "$2"
+	printf '\e[32;1m%s\t%s\e[0m\n' "$1" "$2"
 }
 
 status() {
@@ -203,7 +203,7 @@ mkdir -p tmp && cd $_
 # fix the below to /releases/latest when ready
 curl -s https://api.github.com/repos/ammaraziz/wfi/releases | grep "browser_download_url" | cut -d '"' -f 4 | wget -qi -
 if [[ $? -ne 0 ]]; then
-	message "wget failed, trying --no-check-certificate"
+	oops "wget failed, trying --no-check-certificate"
 	curl -s https://api.github.com/repos/ammaraziz/wfi/releases | grep "browser_download_url" | cut -d '"' -f 4 | wget --no-check-certificate -qi -	
 fi
 
@@ -214,6 +214,8 @@ unzip -q $WFI_DIR/bin/flu-amd.zip -d $WFI_DIR/bin/
 cp -r $WFI_DIR/bin/custom_modules/RSV/ $WFI_DIR/bin/flu-amd/IRMA_RES/modules/RSV/
 bash $WFI_DIR/tools/mod_init.sh -i $WFI_DIR/bin/flu-amd/IRMA_RES/modules/FLU/init.sh
 mv $WFI_DIR ../$WFI_DIR
+
+oops
 
 echo $'\n'
 
@@ -255,7 +257,7 @@ RPACKAGES=$(Rscript <(echo 'is_inst <- function(pkg) {nzchar(system.file(package
 	s = sum(unlist(lapply(p, is_inst)))
 	if (s <= 5) {write("0", stdout())} else {write("1", stdout())}'))
 
-if (( RPACKAGES ))
+if (( RPACKAGES )); then
 	message 'found R packages!'
 else # out-of-the box Mac OS X and some Linux dockers
 	oops 'conda is cutadapt, thats really bad'
