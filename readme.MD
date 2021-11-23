@@ -27,8 +27,8 @@ Snakemake pipeline for running IRMA. Designed for Influenza and RSV Illumina Seq
     ```
 4. Install R (>3.6 should work) and R packages:
     ```
-    conda install -c conda-forge r-base 
-    conda install -c r r-ggplot2 r-dplyr r-stringr r-tidyr r-cowplot r-gridExtra
+    mamba install -c conda-forge r-base 
+    mamba install -c r r-ggplot2 r-dplyr r-stringr r-tidyr r-cowplot r-gridExtra
     ```
 5. Final step! Download the latest `wfi` release (see the side ->)
 	- Put this in your `/home/$USERNAME/bin/`
