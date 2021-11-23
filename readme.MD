@@ -1,6 +1,7 @@
-## WFI (WhoFlu IRMA) 
+## wfi (WhoFlu IRMA) 
 
-Snakemake pipeline for IRMA. Designed for Influenza and RSV Illumina Sequencing.
+Snakemake pipeline for running IRMA. Designed for Influenza and RSV Illumina Sequencing.
+
 ### Requirements:
 - Linux Distro (or \*unix system like MacOS) 
 - Conda
