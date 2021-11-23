@@ -30,11 +30,11 @@ Snakemake pipeline for IRMA. Designed for Influenza and RSV Illumina Sequencing.
     conda install -c r r-ggplot2 r-dplyr r-stringr r-tidyr r-cowplot r-gridExtra
     ```
 5. Final step! Download the latest `wfi` release (see the side ->)
-	- Put this in your /home/USERNAME/bin/
+	- Put this in your `/home/$USERNAME/bin/`
 	- Uncompress the .zip file
-	- Navigate to /wfi/bin/
+	- Navigate to `/wfi/bin/`
 	- Uncompress `flu-amd.zip`
-	- Copy the RSV module from /wfi/bin/custom_modules/ to /wfi/bin/flu-amd/IRMA_RES/modules/
+	- Copy the RSV module from `/wfi/bin/custom_modules/` to `/wfi/bin/flu-amd/IRMA_RES/modules/`
 
 In the future the installation process will be simplified, I promise! Any issues please email, I will be happy to assist.
 
