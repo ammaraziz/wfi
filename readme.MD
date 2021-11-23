@@ -44,19 +44,23 @@ In the future the installation process will be simplified, I promise! Any issues
 To use the pipeline, follow these steps:
 
 1. Navigate to `wfi_config.yaml` and modify as appropriate:
-```
-1. input_dir		input directory - location of the raw fastq files for input.
-2. output_dir		output directory - location to output results - same dir where the config sits.
-3. subset 		if you are only sequencing HA/NA/MP set this to True else leave as False.
-4. second_assembly	if you suspect mixtures, set to True . It will increase run time substantially. 
-```
+
+| Params | Values | Information |
+| --- | --- | --- |
+| input_dir | path | input directory - location of the raw fastq files for input |
+|output_dir|path|output directory - location to output results - same dir where the config sits|
+|second_assembly|`True`/`False`|if you suspect mixtures, set to `True` . It will increase run time substantially|
+|subset|`True`/`False`|if you are only sequencing HA/NA/MP set this to `True` else leave as `False`|
+|technology|`illumina`/`ont`/`pgm`| seq technology used, will change the module by IRMA|
+
+
 3. Check snakemake is installed, if an error is produced it means snakemake was not found or it is not installed.
 ```	
 % snakemake --version
 % 5.10.0 
 ```
 
-4. Test the pipeline, this will output all the commands that will be run. Look for errors (usually in red).
+4. Test the pipeline, this will output all the commands that will be run. Look for errors (red).
 ```
 % snakemake -np
 ```
