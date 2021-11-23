@@ -1,19 +1,49 @@
 ## WFI (WhoFlu IRMA) 
 
 Snakemake pipeline for IRMA. Designed for Influenza and RSV Illumina Sequencing.
+### Requirements:
+- Linux Distro (or \*unix system like MacOS) 
+- Conda
+- Snakemake
+- Cutadapt
+- IRMA
+- R
+- R Packages: `ggplot2` `dplyr` `stringr` `tidyr` `cowplot` `gridExtra`
 
 ---
 ### Installation
 
-`git clone` this repo
+1. Install `miniconda`: https://docs.conda.io/en/latest/miniconda.html
+2. Install `snakemake`: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
+    ```
+    conda install -n base -c conda-forge mamba
+    conda activate base
+    mamba install -c bioconda snakemake
+    ```
+3. Install `cutadapt`:
+    ```
+    mamba install -c biconda cutadapt
+    ```
+4. Install R (>3.6 should work) and R packages:
+    ```
+    conda install -c conda-forge r-base 
+    conda install -c r r-ggplot2 r-dplyr r-stringr r-tidyr r-cowplot r-gridExtra
+    ```
+5. Final step! Download the latest `wfi` release (see the side ->)
+	- Put this in your /home/USERNAME/bin/
+	- Uncompress the .zip file
+	- Navigate to /wfi/bin/
+	- Uncompress `flu-amd.zip`
+	- Copy the RSV module from /wfi/bin/custom_modules/ to /wfi/bin/flu-amd/IRMA_RES/modules/
+
+In the future the installation process will be simplified, I promise! Any issues please email, I will be happy to assist.
 
 ---
 ### Usage
 
 To use the pipeline, follow these steps:
 
-1. Copy `wfi_config.yaml` to a new directory
-2. Modify `wfi_config.yaml`:
+1. Navigate toModify `wfi_config.yaml`:
 ```
 1. input_dir		input directory - location of the raw fastq files for input.
 2. output_dir		output directory - location to output results - same dir where the config sits.
