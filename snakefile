@@ -12,7 +12,7 @@
 #                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
-version = 0.3.1
+version = "0.3.2"
 
 import subprocess, sys, os, glob, shutil
 from time import sleep
@@ -33,7 +33,7 @@ configfile: "wfi_config.yaml"
 IFQ = config["input_dir"]
 workspace = config["output_dir"]
 org = config["organism"].upper()
-seq_technology = config["techology"].lower()
+seq_technology = config["technology"].lower()
 secondary_assembly = config["secondary_assembly"]
 subset = config["subset"]
 

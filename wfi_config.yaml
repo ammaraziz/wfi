@@ -22,7 +22,7 @@ secondary_assembly: False
 
 # Sequencing technology
 # [illumina, ont, pgm]
-techology: illumina
+technology: illumina
 
 # FLU Only
 # [True, False]

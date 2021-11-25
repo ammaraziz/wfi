@@ -2,8 +2,9 @@
 
 usage(){
 cat << EOF 
-
-     usage:     bash mod_init.sh -i /path/to/flu/init.sh 
+    simple script to modify the init.sh files of IRMA
+    
+    usage:     bash mod_init.sh -i /path/to/flu/init.sh 
 
 EOF
 }
