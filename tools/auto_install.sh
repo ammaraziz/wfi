@@ -182,6 +182,7 @@ else
 		message "Success! Conda environment created and deps installed."
 	else:
 		message "There was an error or conflict installing dependancies. Contact the administrator."
+	fi
 fi;
 
 
