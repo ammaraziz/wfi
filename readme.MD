@@ -12,7 +12,17 @@ Snakemake pipeline for running IRMA. Designed for Influenza and RSV Illumina Seq
 - R Packages: `ggplot2` `dplyr` `stringr` `tidyr` `cowplot` `gridExtra`
 
 ---
-### Installation
+
+### Automatic Installation - Experimental
+
+To install `wfi`, use the automatic installation script: 
+
+    wget 'https://raw.githubusercontent.com/ammaraziz/wfi/master/tools/auto_install.sh'
+    ./auto_install.sh
+
+Currently in testing phase, please create an issue if you run into any problems.
+
+### Manual Installation
 
 1. Install `miniconda`: https://docs.conda.io/en/latest/miniconda.html
 2. Install `snakemake`: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
