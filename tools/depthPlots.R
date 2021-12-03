@@ -54,7 +54,6 @@ file_finder = function(dir) {
         )
       ) %>%
     rename(sample_name = samples)
-  
   out_df$full_name = paste(out_df$sample_name, out_df$fname, sep = "/")
   out_df_wide = out_df %>% pivot_wider(names_from = c(ftype), values_from = full_path) %>% drop_na(alleleDepth)
   
@@ -66,7 +65,7 @@ get_data_location <- function(base_location, type) {
   pats <- list(
     rc = "READ_COUNTS.txt", del = "*-deletions.txt", var = "*-variants.txt",
     aa = "*-allAlleles", ins = "*-insertions.txt", cov = "*-coverage.txt",
-    ps = "*-paringStats.txt"
+    ps = "*-paringStats.txt",  a2m = "*coverage.a2m.txt$"
   )
 
   if (type %in% pats) {
