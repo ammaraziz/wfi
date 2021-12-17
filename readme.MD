@@ -33,7 +33,7 @@ Currently in testing phase, please create an issue if you run into any problems.
     ```
 3. Install `cutadapt`:
     ```
-    mamba install -c biconda cutadapt
+    mamba install -c bioconda cutadapt
     ```
 4. Install R (>3.6 should work) and R packages:
     ```
