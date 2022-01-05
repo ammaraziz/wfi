@@ -31,14 +31,15 @@ Currently in testing phase, please create an issue if you run into any problems.
     conda activate base
     mamba install -c bioconda snakemake
     ```
-3. Install `cutadapt`:
+3. Install `cutadapt` and `biopython`:
     ```
     mamba install -c bioconda cutadapt
+    mamba install -c conda-forge biopython 
     ```
 4. Install R (>3.6 should work) and R packages:
     ```
     mamba install -c conda-forge r-base 
-    mamba install -c r r-ggplot2 r-dplyr r-stringr r-tidyr r-cowplot r-gridExtra
+    mamba install -c r r-ggplot2 r-dplyr r-stringi r-stringr r-tidyr r-cowplot r-gridExtra
     ```
 5. Final step! Download the latest `wfi` release (see the side ->)
 	- Put this in your `/home/$USERNAME/bin/`
