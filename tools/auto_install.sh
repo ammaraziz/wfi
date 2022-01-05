@@ -169,7 +169,7 @@ conda config --add channels conda-forge
 
 title 'Creating conda environment "wfi" and installing dependancies'
 
-DEPEND=(r-ggplot2 r-dplyr r-stringi r-stringr r-tidyr r-cowplot r-gridExtr)
+DEPEND=(r-ggplot2 r-dplyr r-stringi r-stringr r-tidyr r-cowplot r-gridExtr r-optparse)
 
 conda install --yes -n base -c conda-forge mamba
 
