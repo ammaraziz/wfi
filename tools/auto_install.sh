@@ -169,7 +169,7 @@ conda config --add channels conda-forge
 
 title 'Creating conda environment "wfi" and installing dependancies'
 
-DEPEND=(r-ggplot2 r-dplyr r-stringr r-tidyr r-cowplot r-gridExtr)
+DEPEND=(r-ggplot2 r-dplyr r-stringi r-stringr r-tidyr r-cowplot r-gridExtr)
 
 conda install --yes -n base -c conda-forge mamba
 
@@ -178,7 +178,7 @@ if [[ -n $ENVS ]]; then
 	source activate wfi
 	message "conda enviornment 'wfi' was detected. Skipping conda and package installation; this assumes all dependancies are installed! "
 else 
-	if mamba create -n wfi --yes python=3.6 r-forge snakemake-minimal $GIT $DEPEND cutadapt; then
+	if mamba create -n wfi --yes python=3.6 r-forge snakemake-minimal $GIT $DEPEND cutadapt biopython; then
 		message "Success! Conda environment created and deps installed."
 	else:
 		message "There was an error or conflict installing dependancies. Contact the administrator."
