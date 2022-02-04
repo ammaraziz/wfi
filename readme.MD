@@ -2,6 +2,8 @@
 
 Snakemake pipeline for running IRMA. Designed for Influenza and RSV Illumina Sequencing.
 
+Note: This pipeline is not ready for general use, while it generally works, it is very brittle.
+
 ### Requirements:
 - Linux Distro (or \*unix system like MacOS) 
 - Conda
