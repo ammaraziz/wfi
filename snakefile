@@ -12,7 +12,7 @@
 #                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
-version = "0.3.2"
+version = "0.3.3"
 
 import subprocess, sys, os, glob, shutil
 from time import sleep
@@ -59,14 +59,14 @@ if org == 'FLU':
 
     # gene segment settings
     if subset is True:
-        seg_to_keep = "{HA,NA,MP}"
+        seg_to_keep = "subset"
     elif subset is False:
-        seg_to_keep = "{HA,NA,MP,NS,NP,PA,PB1,PB2}"
+        seg_to_keep = "all"
     else:
         sys.exit("Check config file for 'subset' param. If unsure set to: False")
 
 elif org == 'RSV':
-    seg_to_keep = "rsv_"
+    seg_to_keep = "rsv"
     if seq_technology == 'illumina': 
         if secondary_assembly is True:
             irma_module = 'RSV-secondary'
@@ -148,15 +148,11 @@ rule all:
     input:
         # filter
         rule_mode,
-        # irma
-        expand(workspace + "assemblies/{sample}/contigs.fasta", sample = SAMPLES),
-        expand(workspace + "assemblies/rename/{sample}.fasta", sample = SAMPLES),
         # status
         expand(workspace + "status/filter_{sample}.txt", sample = SAMPLES),
-        expand(workspace + "status/subTypeSort_{sample}.txt", sample = SAMPLES),
         expand(workspace + "status/irma_{sample}.txt", sample = SAMPLES),
-        join(workspace + "status/process_complete.txt")
-
+        join(workspace + "status/subtyping_complete.txt"),
+        join(workspace + "status/plotting_complete.txt")
 
 
 if run_mode == 'paired':
@@ -188,18 +184,16 @@ if run_mode == 'paired':
         """
 
     # Assembly
-    checkpoint irma_paired:
+    rule irma_paired:
         input:
             R1out = workspace + "qualtrim/{sample}.R1.fastq",
             R2out = workspace + "qualtrim/{sample}.R2.fastq"
         output:
-            contigs = workspace + "assemblies/{sample}/contigs.fasta",
             status = workspace + "status/irma_{sample}.txt"
         params:
             sample_name = "{sample}",
             afolder = workspace + "assemblies/",
             folder = workspace + "assemblies/{sample}/",
-            segs = subset,
             run_module = lambda wildcards: irma_module,
             vcf_loc = workspace + 'vcf/' + "{sample}/"
         log: workspace + "logs/irma_{sample}.txt"
@@ -212,19 +206,7 @@ if run_mode == 'paired':
             # move output to folder
             mv $PWD/{params.sample_name} {params.afolder}
 
-            myarray=(`find ./ -maxdepth 1 -name "*.fasta"`)
-            if [[ ${{myarray[@]}} -gt 0 ]]
-                echo ${{myarray[@]}}
-            then
-                #cat {params.folder}*.fasta 1> {output.contigs} 2>> {log}
-                python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
-                cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
-                mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
-                echo irma produced stuff this is temp ignore > {output.status}
-            else
-                echo temp file ignore > {output.contigs}
-                touch temp file ignore > {output.status}
-        fi
+            touch {output.status}
     """
 
 elif run_mode == 'single':
@@ -251,95 +233,76 @@ elif run_mode == 'single':
           touch {output.status}
         """
 
-    checkpoint irma_single:
+    rule irma_single:
         input:
             single = workspace + "qualtrim/{sample}.fastq"
         output:
-            contigs = workspace + "assemblies/{sample}/contigs.fasta",
             status = workspace + "status/irma_{sample}.txt"
         params:
             sample_name = "{sample}",
             afolder = workspace + "assemblies/",
             folder = workspace + "assemblies/{sample}/",
-            segs = lambda widlcards: seg_to_keep,
             run_module = lambda wildcards: irma_module,
             vcf_loc = workspace + 'vcf/' + "{sample}/"
         log: workspace + "logs/irma_{sample}.txt"
         message: "IRMA is running for {input.single}"
         threads: 10
         shell:"""
-            # run IRMA
             IRMA {params.run_module} {input.single} {params.sample_name} 1>> {log}
-            # move output to folder
             mv $PWD/{params.sample_name} {params.afolder}
-
-            myarray=(`find ./ -maxdepth 1 -name "*.fasta"`)
-            if [[ ${{myarray[@]}} -gt 0 ]]
-                echo ${{myarray[@]}}
-            then
-                python tools/geneMover.py {params.folder} {output.contigs} {params.segs} 2>> {log}
-                cat {params.folder}amended_consensus/*.fa 1> {params.folder}amended_consensus/amended.contigs.fasta 2>>{log}
-                mkdir -p {params.vcf_loc} && cp {params.folder}*.vcf {params.vcf_loc}
-                echo irma produced stuff this is temp ignore > {output.status}
-            else
-                echo temp file ignore > {output.contigs}
-                touch temp file ignore > {output.status}
-            fi
+            touch > {output.status}
         """
 else: 
     sys.exit("Something went wrong with the filter+irma command")
 
-rule rename_fasta:
+# rule rename_fasta:
+#     input:
+#         fasta = workspace + "assemblies/{sample}/contigs.fasta",
+#     output:
+#         fasta = workspace + "assemblies/rename/{sample}.fasta"
+#     params:
+#         org = org,
+#         sample_name = "{sample}"
+#     run:
+#         newFasta = fixNames(fafile = input.fasta, name = params.sample_name, org = params.org)
+#         with open(output.fasta, "w") as fo:
+#             fo.write(newFasta)
+
+
+# rename and sort into subtypes
+rule renameSubtype:
     input:
-        fasta = workspace + "assemblies/{sample}/contigs.fasta",
+        expand(workspace + "status/irma_{sample}.txt", sample = SAMPLES)
     output:
-        fasta = workspace + "assemblies/rename/{sample}.fasta"
+        status = join(workspace + "status/subtyping_complete.txt")
     params:
+        assemblies = workspace + "assemblies/",
         org = org,
-        sample_name = "{sample}"
-    run:
-        newFasta = fixNames(fafile = input.fasta, name = params.sample_name, org = params.org)
-        with open(output.fasta, "w") as fo:
-            fo.write(newFasta)
+        subset = seg_to_keep
+    shell:"""
+    python tools/subtyper.py \
+    -i {params.assemblies} \
+    -o {params.assemblies} \
+    -r {params.org} \
+    --subset {params.subset:q}
 
-
-# sort into subtypes
-rule subTypeSort:
-    input:
-        fasta = workspace + "assemblies/rename/{sample}.fasta"
-    output:
-        status = workspace + "status/subTypeSort_{sample}.txt"
-    params:
-        ws = workspace,
-        fasta = workspace + "assemblies/{sample}/contigs.fasta",
-        org = org
-    run:
-        if params.org == 'FLU':
-            shell: """
-                python ./tools/groupSubtypeIRMA.py {params.fasta} {params.ws}
-                echo temp file ignore > {output.status}
-            """
-
-        elif params.org == 'RSV':
-            #tmp function; replace with python code to sort rsv subtypes into individual
-            with open(output.tmp, "w") as file_open:
-                file_open.write("tmp file ignore")
-
-        else:
-            shell: """
-            touch {output.status}
-            """
+    touch {output.status}
+    """
 
 rule SummaryReport:
     input:
         expand(workspace + "status/irma_{sample}.txt", sample = SAMPLES)
     output:
-        loc = join(workspace + "status/process_complete.txt")
+        loc = join(workspace + "status/plotting_complete.txt")
     params:
         ws = workspace + "assemblies/",
-        loc_out = join(workspace + "assemblies/rename/"),
+        loc_out = join(workspace + "assemblies/"),
         org = org
     shell:"""
-        ./tools/summaryReport.R -i {params.ws:q} -o {params.loc_out:q} -r '{params.org}'
+        ./tools/summaryReport.R \
+        -i {params.ws:q} \
+        -o {params.loc_out:q} \
+        -r '{params.org}'
+        
         touch {output.loc}
     """
