@@ -248,7 +248,7 @@ else # out-of-the box Mac OS X and some Linux dockers
 fi;
 
 RPACKAGES=$(Rscript <(echo 'is_inst <- function(pkg) {nzchar(system.file(package = pkg))}
-	p = c("ggplot2", "dplyr", "stringr", "tidyr", "cowplot", "gridE1xtra")
+	p = c("ggplot2", "dplyr", "stringr", "tidyr", "cowplot", "gridExtra")
 	s = sum(unlist(lapply(p, is_inst)))
 	if (s <= 5) {write("0", stdout())} else {write("1", stdout())}'))
 
