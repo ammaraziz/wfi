@@ -11,7 +11,7 @@ Note: This pipeline is not ready for general use, while it generally works, it i
 - Cutadapt
 - IRMA
 - R
-- R Packages: `ggplot2` `dplyr` `stringr` `tidyr` `cowplot` `gridExtra`
+- R Packages: `ggplot2` `dplyr` `stringr` `tidyr` `cowplot` `gridExtra` `furrr`
 
 ---
 
@@ -40,8 +40,10 @@ Currently in testing phase, please create an issue if you run into any problems.
 4. Install R (>3.6 should work) and R packages:
     ```
     mamba install -c conda-forge r-base 
-    mamba install -c r r-ggplot2 r-dplyr r-tidyr r-cowplot r-gridExtra r-optparse
+    mamba install -c r r-ggplot2 r-dplyr r-tidyr r-cowplot r-gridExtra r-optparse r-furrr
     ```
+ Note: installing r packages through conda is troublesome for some, if so install manually in R. 
+   
 5. Final step! Download the latest `wfi` release (see the side ->)
 	- Put this in your `/home/$USERNAME/bin/`
 	- Uncompress the .zip file
