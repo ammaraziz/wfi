@@ -14,14 +14,8 @@ file_finder = function(dir) {
   
   # returns  - dataframe(sample_name, gene, vcf_path, bam_path, fasta_path)
   
-  # samples = list.dirs(dir, recursive = F) %>% 
-  #   str_split(pattern = "/", simplify = T) %>% 
-  #   as_tibble() %>% 
-  #   select(last_col()) %>% 
-  #   pull()
-  # 
   samples = basename(list.dirs(dir, recursive = F))
-  samples = samples[!(samples %in% c("rename", "figures"))]
+  samples = samples[!(samples %in% c("renamed", "figures", "bySubtype"))]
   
   out_df = data.frame(samples = samples, stringsAsFactors = F)
   out_df$vcf = rep(NA, nrow(out_df))

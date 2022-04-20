@@ -12,7 +12,7 @@
 #                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
-version = "0.3.3"
+version = "0.3.4"
 
 import subprocess, sys, os, glob, shutil
 from time import sleep
@@ -191,20 +191,14 @@ if run_mode == 'paired':
         output:
             status = workspace + "status/irma_{sample}.txt"
         params:
-            sample_name = "{sample}",
-            afolder = workspace + "assemblies/",
             folder = workspace + "assemblies/{sample}/",
             run_module = lambda wildcards: irma_module,
-            vcf_loc = workspace + 'vcf/' + "{sample}/"
         log: workspace + "logs/irma_{sample}.txt"
         message: "IRMA is running for {input.R1out}"
         threads: 10
         shell:"""
             # run IRMA
-            IRMA {params.run_module} {input.R1out} {input.R2out} {params.sample_name} 1>> {log}
-            
-            # move output to folder
-            mv $PWD/{params.sample_name} {params.afolder}
+            IRMA {params.run_module} {input.R1out} {input.R2out} {params.folder} 1>> {log}
 
             touch {output.status}
     """
@@ -239,35 +233,17 @@ elif run_mode == 'single':
         output:
             status = workspace + "status/irma_{sample}.txt"
         params:
-            sample_name = "{sample}",
-            afolder = workspace + "assemblies/",
             folder = workspace + "assemblies/{sample}/",
             run_module = lambda wildcards: irma_module,
-            vcf_loc = workspace + 'vcf/' + "{sample}/"
         log: workspace + "logs/irma_{sample}.txt"
         message: "IRMA is running for {input.single}"
         threads: 10
         shell:"""
-            IRMA {params.run_module} {input.single} {params.sample_name} 1>> {log}
-            mv $PWD/{params.sample_name} {params.afolder}
+            IRMA {params.run_module} {input.single} {params.folder} 1>> {log}
             touch > {output.status}
         """
 else: 
     sys.exit("Something went wrong with the filter+irma command")
-
-# rule rename_fasta:
-#     input:
-#         fasta = workspace + "assemblies/{sample}/contigs.fasta",
-#     output:
-#         fasta = workspace + "assemblies/rename/{sample}.fasta"
-#     params:
-#         org = org,
-#         sample_name = "{sample}"
-#     run:
-#         newFasta = fixNames(fafile = input.fasta, name = params.sample_name, org = params.org)
-#         with open(output.fasta, "w") as fo:
-#             fo.write(newFasta)
-
 
 # rename and sort into subtypes
 rule renameSubtype:
