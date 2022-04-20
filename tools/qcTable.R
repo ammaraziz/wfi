@@ -1,6 +1,5 @@
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(tidyr))
 
 min_reads_metric = c('RSV' = 5000, 'FLU' = 2500)
@@ -12,10 +11,9 @@ get_qc_data <- function(file_location) {
     df = read.delim(f, sep = "\t", stringsAsFactors = FALSE)
     df = df %>% select(Record, Reads) 
     if (nrow(df) != 0) {
-      splits <- unlist(str_split(string = f, pattern = "/", simplify = F))
-      n = length(splits)
-      fsplit <- gsub(splits[n], pattern = "-coverage", replacement = "")
-      df$sampleID <- paste0(splits[n-2])
+      splits <- unlist(strsplit(x = f, split = "/"))
+      fsplit <- gsub(basename(f), pattern = "-coverage.txt", replacement = "")
+      df$sampleID <- paste0(splits[length(splits)-2])
       df_wide = pivot_wider(df, names_from = Record, values_from = Reads)  
       dat_out <- bind_rows(dat_out, df_wide)
     }

@@ -1,5 +1,4 @@
 suppressMessages(library(dplyr))
-suppressMessages(library(stringr))
 
 get_table_data <- function(file_location, org) {
   # returns a list of dataframes read from a list of file names
@@ -8,10 +7,10 @@ get_table_data <- function(file_location, org) {
     for (f in file_location) {
       df <- read.delim(f, sep = "\t", stringsAsFactors = FALSE)
       if (nrow(df) != 0) {
-        splits <- unlist(str_split(string = f, pattern = "/", simplify = F))
-        n = length(splits)
-        fsplit <- gsub(splits[n], pattern = "-coverage", replacement = "")
-        df$sampleID <- paste0(splits[n-2])
+        splits = unlist(strsplit(x = f, split = "/"))
+        #fsplit <- gsub(splits[n], pattern = "-coverage", replacement = "")
+        fsplit = gsub(basename(f), pattern = "-coverage.txt", replacement = "")
+        df$sampleID <- paste0(splits[length(splits)-2])
         dat_out <- append(dat_out, list(df))
         }
       }
@@ -20,11 +19,10 @@ get_table_data <- function(file_location, org) {
     for (f in file_location) {
       df <- read.delim(f, sep = "\t", stringsAsFactors = FALSE)
       if (nrow(df) != 0) {
-        splits <- unlist(str_split(string = f, pattern = "/", simplify = F))
-        n = length(splits)
-        fsplit <- gsub(splits[n], pattern = "-coverage.txt", replacement = "")
-        df$sampleID <- paste0(splits[n-2], '/', fsplit)
-        dat_out <- append(dat_out, list(df))
+        splits = unlist(strsplit(x = f, split = "/"))
+        fsplit = gsub(basename(f), pattern = "-coverage.txt", replacement = "")
+        df$sampleID = paste0(splits[length(splits)-2], '/', fsplit)
+        dat_out = append(dat_out, list(df))
       }
     }
   }

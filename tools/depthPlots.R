@@ -1,7 +1,6 @@
 suppressMessages(library(ggplot2))
 suppressMessages(library(dplyr))
 suppressMessages(library(tidyr))
-suppressMessages(library(stringr))
 suppressMessages(library(cowplot))
 suppressMessages(library(gridExtra))
 
@@ -15,12 +14,13 @@ file_finder = function(dir) {
   
   # returns  - dataframe(sample_name, gene, vcf_path, bam_path, fasta_path)
   
-  samples = list.dirs(dir, recursive = F) %>% 
-    str_split(pattern = "/", simplify = T) %>% 
-    as_tibble() %>% 
-    select(last_col()) %>% 
-    pull()
-  
+  # samples = list.dirs(dir, recursive = F) %>% 
+  #   str_split(pattern = "/", simplify = T) %>% 
+  #   as_tibble() %>% 
+  #   select(last_col()) %>% 
+  #   pull()
+  # 
+  samples = basename(list.dirs(dir, recursive = F))
   samples = samples[!(samples %in% c("rename", "figures"))]
   
   out_df = data.frame(samples = samples, stringsAsFactors = F)
@@ -262,18 +262,6 @@ plot_combine_rsv <- function(file_names) {
   # combines plots into one neat page
   # file_names  :   dataframe containing info on file names and locations and data_aa list
   
-  # plots <- list()
-  # for (i in seq_along(file_names$sample_name)) {
-  #   
-  #   p <- plot_rsv_cov(
-  #     data_aa = file_names$data_aa[[i]],
-  #     plot_name = file_names$full_name[i],
-  #     vcf = file_names$vcf[i]
-  #   )
-  #   
-  #   plots <- append(plots, list(p))
-  # }
-  
   future::plan(future::multisession, workers = 4)
   plots = furrr::future_map(.x = 1:nrow(file_names),
                             .f = function(i){
@@ -292,18 +280,6 @@ plot_combine_rsv <- function(file_names) {
 
 plot_combine_flu <- function(file_names) {
 
-  # plots <- list()
-  # for (i in seq_along(file_names$sample_name)) {
-  #   
-  #   p = plot_flu_cov(
-  #     data_aa = file_names$data_aa[[i]],
-  #     sample_name = file_names$sample_name[i],
-  #     gene = file_names$fname[i],
-  #     vcf = file_names$vcf[i]
-  #   )
-  # 
-  #   plots <- append(plots, list(p))
-  # }
   future::plan(future::multisession, workers = 4)
   plots = furrr::future_map(.x = 1:nrow(file_names),
                             .f = function(i){
@@ -320,28 +296,3 @@ plot_combine_flu <- function(file_names) {
   plots_combined <- marrangeGrob(plots, ncol = nCol, nrow = nRow)
   return(plots_combined)
 }
-
-#usage example is here:
-
-# base_location = '~/Desktop/assemblies'
-# 
-# locations_aa = get_data_location(base_location, type = 'aa')
-# data_aa = get_data(locations_aa)
-# data_aa_avg = lapply(data_aa, FUN = average_counts, type = 'aa', by_num = 5)
-# names(data_aa_avg) = str_match(locations_aa, pattern = "assemblies\\/(\\w+)\\/tables")[,2]
-# plot_rsv_cov(data_aa, 'test', base_location = base_location)
-# 
-# file_names = tibble(
-#   sample = str_match(locations_aa, pattern = "(\\w+)/tables")[, 2],
-#   file_name = str_match(locations_aa, pattern = "[A|B]_\\w{2,3}.+")) %>% 
-#   mutate(gene = str_replace(file_name, pattern = "-allAlleles.txt", replacement = "")) %>%
-#   mutate(sample_gene = paste0(sample, "/", gene))
-# 
-# a = plot_combine_flu(data_avg = data_aa_avg,
-#                  gene = file_names$gene,
-#                  sample = file_names$sample,
-#                  base_location = base_location)
-# 
-# ggsave(filename =  paste0("depthReport.pdf"),
-#        plot = a, device = "pdf",
-#        dpi = 300,  width = 420, height = 297, units = 'mm')

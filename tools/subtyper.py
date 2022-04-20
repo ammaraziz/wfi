@@ -2,7 +2,7 @@
 
 '''
 Process and subtype IRMA output
-subtyper.py -i [inputDir] -r [species] --subset [all, subset rsv]
+subtyper.py -i [inputDir] -o [outputdir] -r [species] --subset [all, subset rsv]
 inputDir is expected to be the /assemblies/ folder
 
 '''
@@ -70,7 +70,7 @@ def combineFasta(directory, subset, outname="all.fasta"):
     '''
 
     subsetDict = {
-        'all'     : ['PB2', 'PB1', 'PA', 'HA', ' NP', 'NA', 'MP', 'NS'],
+        'all'     : ['PB2', 'PB1', 'PA', 'HA', 'NP', 'NA', 'MP', 'NS'],
         'subset' : ['HA', 'NA', 'MP'],
         'rsv'     : ['a1', 'a2', 'b']
     }
@@ -82,7 +82,6 @@ def combineFasta(directory, subset, outname="all.fasta"):
         if os.path.basename(a) not in ['contigs.fasta', 'all.fasta']
         if a.stem.split('_')[1] in subsetDict[subset]
         ]
-    
     outpath = Path(directory, outname)
 
     with open(outpath, 'w') as outfile:
@@ -103,7 +102,6 @@ def getSubtype(sampleDirectory, org):
     '''
     get subtype from output of IRMA file by parsing fasta file names
     '''
-
     if org == 'FLU':
         regex_spec = re.compile(r'([A|B])_\w+\.fasta')
         regex_ha = re.compile(r'[A|B]_HA_(H\d+)\.fasta')
@@ -165,13 +163,14 @@ def register_arguments():
                         help="Output directory")
     parser.add_argument("-r", "--species", required=True,
                         help="Virus species: flu, rsv"),
-    parser.add_argument("--subset", required=True,
+    parser.add_argument("--subset", required=False,
                         help ="Subset output to specific gene segments: all, subsetA, subsetB, rsv",
                         default='all')
     return(parser.parse_args())
 
 def run():
     args = register_arguments()
+    args.species = args.species.upper()
 
     out_renamed = Path(args.output).joinpath("renamed")
     out_subtyped = Path(args.output).joinpath('bySubtype')
