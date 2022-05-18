@@ -24,6 +24,17 @@ secondary_assembly: False
 # [illumina, ont, pgm]
 technology: illumina
 
+# Trimming mode
+# [standard, tile]
+# standard uses cutadapt
+# tile uses bbduk
+trim_prog: tile
+# only for trim_prog 'tile'
+# specifies organism specific primers
+# [h1, h3]
+trim_org: h1
+
+
 # FLU Only
 # [True, False]
 # True = ha, na, mp

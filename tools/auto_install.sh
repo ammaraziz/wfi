@@ -169,7 +169,7 @@ conda config --add channels conda-forge
 
 title 'Creating conda environment "wfi" and installing dependancies'
 
-DEPEND=(r-ggplot2 r-dplyr r-stringi r-stringr r-tidyr r-cowplot r-gridExtra r-optparse)
+DEPEND=(r-ggplot2 r-dplyr r-tidyr r-cowplot r-gridExtra r-optparse)
 
 conda install --yes -n base -c conda-forge mamba
 
@@ -196,10 +196,10 @@ title 'Installing wfi'
 
 message 'Attempting to download latest release of wfi'
 # fix the below to /releases/latest when ready
-curl -s https://api.github.com/repos/ammaraziz/wfi/releases | grep "browser_download_url" | cut -d '"' -f 4 | wget -qi -
+curl -s https://api.github.com/repos/ammaraziz/wfi/releases | grep "browser_download_url" | cut -d '"' -f 4 | head -n 1 | wget -qi -
 if [[ $? -ne 0 ]]; then
 	oops "wget failed, trying --no-check-certificate"
-	curl -s https://api.github.com/repos/ammaraziz/wfi/releases | grep "browser_download_url" | cut -d '"' -f 4 | wget --no-check-certificate -qi -	
+	curl -s https://api.github.com/repos/ammaraziz/wfi/releases | grep "browser_download_url" | cut -d '"' -f 4 | head -n 1 | wget --no-check-certificate -qi -	
 fi
 
 # uncompress directory and install modules

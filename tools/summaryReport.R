@@ -111,10 +111,6 @@ source("./tools/qcTable.R")
 
 main  <- function() {
 
-  #print params for user
-  write(paste0("organism: ", opts$organism), stdout())
-  write(paste0("input: ", opts$input), stdout())
-  write(paste0("output: ", opts$output), stdout())
   opts$organism = toupper(opts$organism)
   
   # get file names
