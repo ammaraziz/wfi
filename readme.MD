@@ -20,7 +20,7 @@ Note: This pipeline is not ready for general use, while it generally works, it i
 To install `wfi`, use the automatic installation script: 
 
     wget https://raw.githubusercontent.com/ammaraziz/wfi/master/tools/auto_install.sh
-    ./auto_install.sh
+    bash auto_install.sh
 
 Currently in testing phase, please create an issue if you run into any problems.
 
@@ -66,21 +66,23 @@ To use the pipeline, follow these steps:
 |output_dir|path|output directory - location to output results - same dir where the config sits|
 |second_assembly|`True`/`False`|if you suspect mixtures, set to `True` . It will increase run time substantially|
 |subset|`True`/`False`|if you are only sequencing HA/NA/MP set this to `True` else leave as `False`|
+|trim_prog|`standard`/`tile`| Trimming program to use, tile (bbduk) or standard (cutadapt)|
+|trim_org|`h1`/`h3`| Influenza only, Flu subtype|
 |technology|`illumina`/`ont`/`pgm`| seq technology used, will change the module by IRMA|
 
 
-3. Check snakemake is installed, if an error is produced it means snakemake was not found or it is not installed.
+2. Check snakemake is installed, if an error is produced it means snakemake was not found or it is not installed.
 ```	
 % snakemake --version
 % 5.10.0 
 ```
 
-4. Test the pipeline, this will output all the commands that will be run. Look for errors (red).
+3. Test the pipeline, this will output all the commands that will be run. Look for errors (red).
 ```
 % snakemake -np
 ```
 
-5. Run the pipeline, with option -j to specify number of cores to use.
+4. Run the pipeline, with option -j to specify number of cores to use.
 ```
 % snakemake -j 8
 ```

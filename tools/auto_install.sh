@@ -200,7 +200,7 @@ if [[ $INSTALL_CONDA -eq "1" ]]; then
 fi
 
 message 'Creating conda environment "wfi" and installing dependancies'
-DEPEND=("r-ggplot2" "r-dplyr" "r-tidyr" "r-cowplot" "r-gridExtra" "r-optparse")
+DEPEND=("r-ggplot2" "r-dplyr" "r-tidyr" "r-cowplot" "r-gridExtra" "r-optparse" "r-furrr")
 ENVS=$(conda env list | grep 'wfi' )
 if [[ -n $ENVS ]]; then
 	conda activate wfi
@@ -281,7 +281,7 @@ else
 fi;
 
 RPACKAGES=$(Rscript <(echo 'is_inst <- function(pkg) {nzchar(system.file(package = pkg))}
-	p = c("ggplot2", "dplyr", "tidyr", "cowplot", "gridExtra")
+	p = c("ggplot2", "dplyr", "tidyr", "cowplot", "gridExtra", "furrr", "optparse")
 	s = sum(unlist(lapply(p, is_inst)))
 	if (s == 5) {write("0", stdout())} else {write("1", stdout())}'))
 
