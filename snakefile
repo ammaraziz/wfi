@@ -12,7 +12,7 @@
 #                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
-version = "0.3.6"
+version = "0.3.7"
 
 import subprocess, sys, os, glob, shutil
 from time import sleep
