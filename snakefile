@@ -37,7 +37,6 @@ seq_technology = config["technology"].lower()
 secondary_assembly = config["secondary_assembly"]
 subset = config["subset"]
 trim_prog = config["trim_prog"]
-trim_org = config["trim_org"]
 
 if org == 'FLU':
     if seq_technology == 'illumina':
@@ -56,6 +55,9 @@ if org == 'FLU':
             f'secondary_assembly {secondary_assembly}\n'
             f'techology {seq_technology}'
             )
+    
+    # trim org settings just for flu
+    trim_org = config["trim_org"]
 
     # gene segment settings
     if subset is True:
@@ -66,6 +68,9 @@ if org == 'FLU':
         sys.exit("Check config file for 'subset' param. If unsure set to: False")
 
 elif org == 'RSV':
+    # trim org settings, blank for RSV
+    trim_org = ""
+    
     seg_to_keep = "rsv"
     if seq_technology == 'illumina': 
         if secondary_assembly is True:
@@ -93,7 +98,6 @@ onstart:
     print("IRMA Module: " + irma_module)
     print("Secondary Assembly: " + str(secondary_assembly))
     print("Trimming using: " + str(trim_prog))
-    print("\n")
 
 onsuccess:
     print("wfi has successfully completed!")
@@ -134,6 +138,12 @@ if trim_prog not in ['standard', 'tile']:
 if trim_org not in ['h1', 'h3']:
     sys.exit("Configuration incorrect, check 'trim_org' it must be: h1 or h3. bvic is not supported")
 
+if org == 'FLU':
+    K = 9
+    MINK = 5
+if org == 'RSV':
+    K = 12
+    MINK = 5
 
 ## Rules ------------------------------------------------------------------------
 rule all:
@@ -195,8 +205,8 @@ if run_mode == 'paired':
                stats2 = workspace + "logs/trimStats2_{sample}.txt",
                refstats1 = workspace + "logs/trimRefStats1_{sample}.txt",
                refstats2 = workspace + "logs/trimRefStats2_{sample}.txt",
-               k = 9,
-               mink = 3,
+               k = K,
+               mink = MINK,
                restrict = 30,
                hdist = 1
             threads: 2

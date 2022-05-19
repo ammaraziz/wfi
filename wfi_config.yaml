@@ -30,6 +30,7 @@ technology: illumina
 # tile uses bbduk
 trim_prog: tile
 # only for trim_prog 'tile'
+# only for influenza
 # specifies organism specific primers
 # [h1, h3]
 trim_org: h1

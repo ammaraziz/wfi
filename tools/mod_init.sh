@@ -24,8 +24,6 @@ while [ "$1" != "" ]; do
     shift
 done
 
-echo $input
-
 #backup init.sh
 cp $input $input.backup
 
