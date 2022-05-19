@@ -18,6 +18,8 @@ jobs:
         exclusions: '*.git* /*node_modules/* .editorconfig'
 
   release_zip:
+    needs: 
+      build_zip
     runs-on: ubuntu-latest
     permissions:
       contents: write
