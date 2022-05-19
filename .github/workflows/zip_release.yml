@@ -15,7 +15,7 @@ jobs:
       with:
         type: 'tar'
         filename: 'latest.tar.gz'
-        exclusions: '*.git* .'
+        exclusions: '*.git* . latest.tar.gz'
     - name: Upload Release
       uses: ncipollo/release-action@v1
       with:

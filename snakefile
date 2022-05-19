@@ -135,7 +135,7 @@ if run_mode == 'single':
 ## Trimming ---------------------------------------------------------------------
 if trim_prog not in ['standard', 'tile']:
     sys.exit("Configuration incorrect, check 'trim_prog' it must be: standard or tile")
-if trim_org not in ['h1', 'h3']:
+if trim_org not in ['h1', 'h3', '']:
     sys.exit("Configuration incorrect, check 'trim_org' it must be: h1 or h3. bvic is not supported")
 
 if org == 'FLU':
@@ -199,8 +199,8 @@ if run_mode == 'paired':
                 R2_out_right = workspace + "qualtrim/{sample}.R2.fastq",
                 status = workspace + "status/filter_{sample}.txt"
             params:
-               Fadapter = f"bin/adapters/{org}_tile_left_{trim_org}.fa",
-               Radapter = f"bin/adapters/{org}_tile_right_{trim_org}.fa",
+               Fadapter = f"bin/adapters/{org}{trim_org}_tile_left.fa",
+               Radapter = f"bin/adapters/{org}{trim_org}_tile_right.fa",
                stats1 = workspace + "logs/trimStats1_{sample}.txt",
                stats2 = workspace + "logs/trimStats2_{sample}.txt",
                refstats1 = workspace + "logs/trimRefStats1_{sample}.txt",

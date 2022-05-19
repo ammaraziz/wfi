@@ -224,7 +224,7 @@ status 'Installing wfi'
 message 'Attempting to download latest release of wfi'
 LATEST_URL=$(curl -s https://api.github.com/repos/ammaraziz/wfi/releases | grep "browser_download_url" | cut -d '"' -f 4 | head -n 1)
 NAME_WFI=$(basename $LATEST_URL)
-DIR_WFI=$PREFIX/${NAME_WFI/.tar.gz/}
+
 
 wget -q $LATEST_URL -P $PREFIX
 if [[ $? -ne 0 ]]; then
@@ -233,9 +233,10 @@ if [[ $? -ne 0 ]]; then
 fi
 message 'Latest version downloaded, attempting to uncompress and setup wfi pipline.'
 
-tar -xf $PREFIX/$NAME_WFI
-unzip -q $DIR_WFI/bin/flu-amd.zip -d $DIR_WFI/bin/
-bash $DIR_WFI/tools/mod_init.sh -i $DIR_WFI/bin/flu-amd/IRMA_RES/modules/FLU/init.sh
+mkdir wfi_latest
+tar -xf $PREFIX/$NAME_WFI -C wfi_latest
+unzip -q wfi_latest/bin/flu-amd.zip -d wfi_latest/bin/
+bash wfi_latest/tools/mod_init.sh -i wfi_latest/bin/flu-amd/IRMA_RES/modules/FLU/init.sh
 
 message "wfi has finished installing!"
 
