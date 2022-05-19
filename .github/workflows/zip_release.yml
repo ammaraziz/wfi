@@ -1,0 +1,29 @@
+name: Create Archive
+on: 
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+
+jobs:
+  build_zip:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Archive Release
+      uses: thedoctor0/zip-release@master
+      with:
+        type: 'tar'
+        filename: 'latest.tar.gz'
+        exclusions: '*.git* /*node_modules/* .editorconfig'
+
+  release_zip:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v2
+    - uses: ncipollo/release-action@v1
+      with:
+        artifacts: "latest.tar.gz"
+        generateReleaseNotes: true
