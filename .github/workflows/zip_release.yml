@@ -16,16 +16,8 @@ jobs:
         type: 'tar'
         filename: 'latest.tar.gz'
         exclusions: '*.git*'
-
-  release_zip:
-    needs: 
-      build_zip
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-    - uses: actions/checkout@v2
-    - uses: ncipollo/release-action@v1
+    - name: Upload Release
+      uses: ncipollo/release-action@v1
       with:
         artifacts: "latest.tar.gz"
         generateReleaseNotes: true
