@@ -12,7 +12,7 @@
 #                           DO NOT TOUCH ANYTHING                           #
 #############################################################################
 
-version = "0.3.74"
+version = "0.3.78"
 
 import subprocess, sys, os, glob, shutil
 from time import sleep
@@ -119,6 +119,21 @@ elif seq_technology == 'pgm':
     SAMPLES = SAMPLE_NAME
     run_mode = 'single'
 
+# Catch Empty Files ------------------------------------------------------------------------
+
+from os.path import basename
+
+def is_gzip_empty(file_name, len_minus_file_name=119): 
+    return os.stat(file_name).st_size - len(os.path.basename(file_name)) < len_minus_file_name
+
+empty_fastq = []
+for f in [s for s in os.listdir(IFQ) if s.endswith('.gz')] :
+    if is_gzip_empty(IFQ+f):
+        empty_fastq.append(f)
+if empty_fastq:
+    print('\033[33m' + "Empty fastq files detected. Check the following input files:" + "\n" + '\n'.join(empty_fastq)+ '\033[m')
+    os._exit(1)
+ 
 ## Mode ------------------------------------------------------------------------
 if run_mode not in ['paired', 'single']:
     sys.exit("Configuration incorrect, check 'run_mode' it must be: paired or single")
@@ -173,7 +188,7 @@ if run_mode == 'paired':
                Fadapter = f"bin/adapters/{org}_left.fa",
                Radapter = f"bin/adapters/{org}_right.fa"
             threads: 2
-            message: "Filtering and trimming {input.faR1} reads."
+            message: "Filtering and trimming {wildcards.sample} reads."
             log: workspace + "logs/trim_{sample}.txt"
             shell:"""
               cutadapt {input.faR1} {input.faR2} \
@@ -203,14 +218,12 @@ if run_mode == 'paired':
                Radapter = f"bin/adapters/{org}{trim_org}_tile_right.fa",
                stats1 = workspace + "logs/trimStats1_{sample}.txt",
                stats2 = workspace + "logs/trimStats2_{sample}.txt",
-               refstats1 = workspace + "logs/trimRefStats1_{sample}.txt",
-               refstats2 = workspace + "logs/trimRefStats2_{sample}.txt",
                k = K,
                mink = MINK,
                restrict = 30,
                hdist = 1
             threads: 2
-            message: "Filtering and trimming {input.faR1} reads."
+            message: "Filtering and trimming {wildcards.sample} reads."
             log: workspace + "logs/trim_{sample}.txt"
             shell:"""
               bbduk.sh in={input.faR1} \
@@ -267,7 +280,7 @@ if run_mode == 'paired':
             folder = workspace + "assemblies/{sample}/",
             run_module = lambda wildcards: irma_module,
         log: workspace + "logs/irma_{sample}.txt"
-        message: "IRMA is running for {input.R1out}"
+        message: "IRMA is running for {wildcards.sample}"
         threads: 10
         shell:"""
             # run IRMA
@@ -277,29 +290,90 @@ if run_mode == 'paired':
     """
 
 elif run_mode == 'single':
-    rule filter_std:
-        input:
-            single = expand(IFQ + "{{sample}}.fastq.gz"),
-        output:
-            filtered = workspace + "qualtrim/{sample}.fastq",
-            status = workspace + "status/filter_{sample}.txt"
-        params:
-           Fadapter = f"bin/adapters/{org}_f.fa",
-           Radapter = f"bin/adapters/{org}_r.fa"
-        threads: 2
-        message: "Trimming {input.single} reads."
-        log: workspace + "logs/trim_{sample}.txt"
-        shell:"""
-          cutadapt {input.single}\
-          -j {threads} \
-          -g file:{params.Fadapter} \
-          -a file:{params.Radapter} \
-          -o {output.filtered} \
-          --report full 1> {log}
+    # Filter standard
+    if trim_prog == 'standard':
+        rule filter_std:
+            input:
+                single = expand(IFQ + "{{sample}}.fastq.gz"),
+            output:
+                filtered = workspace + "qualtrim/{sample}.fastq",
+                status = workspace + "status/filter_{sample}.txt"
+            params:
+               Fadapter = f"bin/adapters/{org}_left.fa",
+               Radapter = f"bin/adapters/{org}_right.fa"
+            threads: 2
+            message: "Trimming {wildcards.sample} reads."
+            log: workspace + "logs/trim_{sample}.txt"
+            shell:"""
+              cutadapt {input.single}\
+              -j {threads} \
+              -g file:{params.Fadapter} \
+              -a file:{params.Radapter} \
+              -o {output.filtered} \
+              --report full 1> {log}
 
-          touch {output.status}
-        """
+              touch {output.status}
+            """
+    # Filter tile
+    if trim_prog == 'tile':
+        rule filter_tile:
+            input:
+                single = expand(IFQ + "{{sample}}.fastq.gz"),
+            output:
+                single = workspace + "qualtrim/{sample}.fastq",
+                status = workspace + "status/filter_{sample}.txt"
+            params:
+               Fadapter = f"bin/adapters/{org}{trim_org}_tile_left.fa",
+               Radapter = f"bin/adapters/{org}{trim_org}_tile_right.fa",
+               stats1 = workspace + "logs/trimStats1_{sample}.txt",
+               stats2 = workspace + "logs/trimStats2_{sample}.txt",
+               k = K,
+               mink = MINK,
+               restrict = 30,
+               hdist = 1
+            threads: 2
+            message: "Filtering and trimming {wildcards.sample} reads."
+            log: workspace + "logs/trim_{sample}.txt"
+            shell:"""
+              bbduk.sh in={input.single} \
+              ktrim=l \
+              mm=f \
+              hdist={params.hdist} \
+              rcomp=t \
+              ref={params.Fadapter} \
+              ordered=t \
+              minlen=0 \
+              minlength=0 \
+              trimq=0 \
+              k={params.k} \
+              mink={params.mink} \
+              threads={threads} \
+              restrictleft={params.restrict} \
+              out=stdout.fq \
+              stats={params.stats1} \
+              statscolumns=5 2>> {log} | 
 
+              bbduk.sh in=stdin.fq \
+              ktrim=r \
+              mm=f \
+              hdist={params.hdist} \
+              rcomp=t \
+              ref={params.Radapter} \
+              ordered=t \
+              minlen=0 \
+              minlength=0 \
+              trimq=0 \
+              k={params.k} \
+              mink={params.mink} \
+              threads={threads} \
+              restrictright={params.restrict} \
+              out={output.single} \
+              stats={params.stats2} \
+              statscolumns=5 2>> {log}
+
+              touch {output.status}
+            """
+    #Assemlby
     rule irma_single:
         input:
             single = workspace + "qualtrim/{sample}.fastq"
@@ -309,10 +383,10 @@ elif run_mode == 'single':
             folder = workspace + "assemblies/{sample}/",
             run_module = lambda wildcards: irma_module,
         log: workspace + "logs/irma_{sample}.txt"
-        message: "IRMA is running for {input.single}"
+        message: "IRMA is running for {wildcards.sample}"
         threads: 10
         shell:"""
-            IRMA {params.run_module} {input.single} {params.folder} 1>> {log}
+            IRMA {params.run_module} {input.single} {params.folder} 1> {log}
             touch > {output.status}
         """
 else: 
