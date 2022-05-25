@@ -351,7 +351,7 @@ elif run_mode == 'single':
               restrictleft={params.restrict} \
               out=stdout.fq \
               stats={params.stats1} \
-              statscolumns=5 2>> {log} | 
+              statscolumns=5 2>&1 {log} | 
 
               bbduk.sh in=stdin.fq \
               ktrim=r \
@@ -369,7 +369,7 @@ elif run_mode == 'single':
               restrictright={params.restrict} \
               out={output.single} \
               stats={params.stats2} \
-              statscolumns=5 2>> {log}
+              statscolumns=5 2>&1 {log}
 
               touch {output.status}
             """
@@ -387,7 +387,7 @@ elif run_mode == 'single':
         threads: 10
         shell:"""
             IRMA {params.run_module} {input.single} {params.folder} 1> {log}
-            touch > {output.status}
+            touch {output.status}
         """
 else: 
     sys.exit("Something went wrong with the filter+irma command. Check output")
