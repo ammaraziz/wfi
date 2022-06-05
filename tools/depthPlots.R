@@ -9,31 +9,29 @@ options(warn = -1)
 debuggingState(on = FALSE)
 
 file_finder = function(dir) {
-  # search a given folder for .bam, .vcf, .fasta files and match to sample name
+  # search a given folder for .vcf, .fasta and depth files and match to sample name
   # dir   :   directory to search for
   
   # returns  - dataframe(sample_name, gene, vcf_path, bam_path, fasta_path)
   
   samples = basename(list.dirs(dir, recursive = F))
   samples = samples[!(samples %in% c("renamed", "figures", "bySubtype"))]
-  
+
   out_df = data.frame(samples = samples, stringsAsFactors = F)
   out_df$vcf = rep(NA, nrow(out_df))
   out_df$fasta = rep(NA, nrow(out_df))
   out_df$alleleDepth = rep(NA, nrow(out_df))
-  
+
   for (s in samples) {
     # vcf
     tmp_vcf = list.files(path = paste0(dir, "/", s), pattern = "*.vcf$", full.names = T)
     out_df$vcf[which(out_df$samples == s)] = list(tmp_vcf)
-    
     # fasta
     tmp_fasta = list.files(path = paste0(dir, "/", s), pattern = "*.fasta$", full.names = T)
     tmp_fasta = tmp_fasta[!(tmp_fasta %in% c(paste0(dir,"/", s, "/contigs.fasta")))]
     out_df$fasta[which(out_df$samples == s)] = list(tmp_fasta)
-    
     # read depth file
-    tmp_aa = list.files(path = paste0(dir, "/", s, "/", "tables"), pattern = "*allAlleles.txt$", full.names = T)
+    tmp_aa = list.files(path = paste0(dir, "/", s, "/", "tables"), pattern = "*-coverage.a2m.txt$", full.names = T)
     out_df$alleleDepth[which(out_df$samples == s)] = list(tmp_aa)
   }
 
@@ -43,13 +41,15 @@ file_finder = function(dir) {
     mutate(
       fname = case_when(
         ftype %in% c('vcf', 'fasta') ~ gsub("\\..+$", "", basename(full_path)),
-        ftype == 'alleleDepth' ~ gsub("-allAlleles.txt", "", basename(full_path)),
+        ftype == 'alleleDepth' ~ gsub("-coverage.a2m.txt", "", basename(full_path)),
         TRUE ~ basename(full_path)
         )
       ) %>%
     rename(sample_name = samples)
   out_df$full_name = paste(out_df$sample_name, out_df$fname, sep = "/")
-  out_df_wide = out_df %>% pivot_wider(names_from = c(ftype), values_from = full_path) %>% drop_na(alleleDepth)
+  out_df_wide = out_df %>% 
+    pivot_wider(names_from = c(ftype), values_from = full_path) %>% 
+    drop_na(alleleDepth)
   
   return(out_df_wide)
   }
@@ -113,34 +113,27 @@ get_data <- function(file_location, file_name) {
   for (i in seq_along(file_location)) {
     tryCatch(
       expr = {
-        df <- read.delim(file_location[i], sep = "\t", stringsAsFactors = FALSE)
+        df = read.delim(file_location[i], sep = "\t", stringsAsFactors = FALSE)
         if (nrow(df) != 0) {
-          data_avg = average_counts(df, 'aa', 5)
+          data_avg = average_counts(df, 5)
           dat_out[[ file_name[i] ]] = data_avg
           }
         },
       error = function(cond){
-        dat_out <- append(dat_out, list(data.frame()))
+        dat_out = append(dat_out, list(data.frame()))
       }
     )
   }
   return(dat_out)
 }
 
-average_counts <- function(df, type, by_num) {
+average_counts <- function(df, by_num) {
   # type    : the aforementioned file patterns: rc, del, var, aa, ins, cov, ps
   # by_num  : the number of rows to average by
   # returns : a dataframe similar to input but averaged over by_num
-
-  ## type = aa
-  if (type == "aa") {
-    df_out <- df %>%
-      filter(Allele_Type == "Consensus") %>%
+    df_out = df %>%
       group_by(group_var = trunc(2:(n() + 1) / by_num)) %>%
-      summarise(coverage = mean(Count), genomic_position = min(Position))
-  } else {
-    return("probably an error")
-  }
+      summarise(coverage = mean(Consensus_Count), genomic_position = min(HMM_Position))
   return(df_out)
 }
 
