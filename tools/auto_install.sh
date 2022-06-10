@@ -144,6 +144,8 @@ if [[ -n "$CONDA_PREFIX" ]]; then
 	message 'CONDA_PREFIX environment variable set'
 	ENVIRONMENTWARNING=1
 	INSTALL_CONDA=0
+else
+	INSTALL_CONDA=1
 fi
 
 ##################
