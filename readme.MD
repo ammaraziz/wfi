@@ -145,4 +145,5 @@ To use the pipeline, follow these steps:
    or I need more help			
    or I've screwed something up badly!		Shoot me an email
 ```
-Contact Ammar via email: ammar.aziz@mh.org.au or go bug him in person for help at any time.
+
+For any issues please submit a github issue.
