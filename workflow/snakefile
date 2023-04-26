@@ -18,6 +18,9 @@ from Bio.SeqRecord import SeqRecord
 from pathlib import Path
 
 
+import os
+cwd = os.getcwd()
+print(cwd)
 # global variables
 configfile: "config/config.yaml"
 IFQ = config["input_dir"]
