@@ -173,8 +173,8 @@ if run_mode == 'paired':
                 R2out = workspace + "qualtrim/{sample}.R2.fastq",
                 status = workspace + "status/filter_{sample}.txt"
             params:
-               Fadapter = f"bin/adapters/{org}_left.fa",
-               Radapter = f"bin/adapters/{org}_right.fa"
+               Fadapter = f"resources/adapters/{org}_left.fa",
+               Radapter = f"resources/adapters/{org}_right.fa"
             threads: 2
             message: "Filtering and trimming {wildcards.sample} reads."
             log: workspace + "logs/trim_{sample}.txt"
@@ -202,8 +202,8 @@ if run_mode == 'paired':
                 R2_out_right = workspace + "qualtrim/{sample}.R2.fastq",
                 status = workspace + "status/filter_{sample}.txt"
             params:
-               Fadapter = f"bin/adapters/{org}{trim_org}_tile_left.fa",
-               Radapter = f"bin/adapters/{org}{trim_org}_tile_right.fa",
+               Fadapter = f"resources/adapters/{org}{trim_org}_tile_left.fa",
+               Radapter = f"resources/adapters/{org}{trim_org}_tile_right.fa",
                stats1 = workspace + "logs/trimStats1_{sample}.txt",
                stats2 = workspace + "logs/trimStats2_{sample}.txt",
                k = K,
@@ -287,8 +287,8 @@ elif run_mode == 'single':
                 filtered = workspace + "qualtrim/{sample}.fastq",
                 status = workspace + "status/filter_{sample}.txt"
             params:
-               Fadapter = f"bin/adapters/{org}_left.fa",
-               Radapter = f"bin/adapters/{org}_right.fa"
+               Fadapter = f"resources/adapters/{org}_left.fa",
+               Radapter = f"resources/adapters/{org}_right.fa"
             threads: 2
             message: "Trimming {wildcards.sample} reads."
             log: workspace + "logs/trim_{sample}.txt"
@@ -311,8 +311,8 @@ elif run_mode == 'single':
                 single = workspace + "qualtrim/{sample}.fastq",
                 status = workspace + "status/filter_{sample}.txt"
             params:
-               Fadapter = f"bin/adapters/{org}{trim_org}_tile_left.fa",
-               Radapter = f"bin/adapters/{org}{trim_org}_tile_right.fa",
+               Fadapter = f"resources/adapters/{org}{trim_org}_tile_left.fa",
+               Radapter = f"resources/adapters/{org}{trim_org}_tile_right.fa",
                stats1 = workspace + "logs/trimStats1_{sample}.txt",
                stats2 = workspace + "logs/trimStats2_{sample}.txt",
                k = K,
