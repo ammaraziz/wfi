@@ -9,26 +9,27 @@
 ############## Params ##############
 ####################################
 
-input_dir: /Path/To/Input/Directory/
-output_dir: /Path/To/Output/Directory/
+input_dir: input/
+output_dir: results/
 
 # Organism
 # [FLU, RSV, CoV, EBOLA, FLU_AD]
-organism: FLU 
+organism: FLU
 
 # Secondary assembly
 # [True, False]
-secondary_assembly: False 
+secondary_assembly: False
 
 # Sequencing technology
 # [illumina, ont, pgm]
 technology: illumina
 
-# Trimming mode
 # [standard, tile]
+# Trimming mode
 # standard uses cutadapt
 # tile uses bbduk
-trim_prog: tile
+trim_prog: standard
+
 # only for trim_prog 'tile'
 # only for influenza
 # specifies organism specific primers
