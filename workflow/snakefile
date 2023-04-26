@@ -7,29 +7,19 @@
 #                                                                           #
 #############################################################################
 
-
-#############################################################################
-#                           DO NOT TOUCH ANYTHING                           #
-#############################################################################
-
-version = "0.3.78"
-
 import subprocess, sys, os, glob, shutil
+import snakemake
 from time import sleep
 from re import sub
 from os.path import join
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
-import snakemake
-
-# export IRMA into $PATH of linux
-irma_path = "bin/flu-amd/"
-os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
+from pathlib import Path
 
 
 # global variables
-configfile: "config.yaml"
+configfile: "config/config.yaml"
 IFQ = config["input_dir"]
 workspace = config["output_dir"]
 org = config["organism"].upper()
@@ -170,8 +160,6 @@ rule all:
         expand(workspace + "status/irma_{sample}.txt", sample = SAMPLES),
         join(workspace + "status/subtyping_complete.txt"),
         join(workspace + "status/plotting_complete.txt")
-
-
 
 if run_mode == 'paired':
     # Filter standard
