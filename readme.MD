@@ -15,16 +15,7 @@ Note: This pipeline is not ready for general use, while it generally works, it i
 
 ---
 
-### Automatic Installation - Experimental
-
-To install `wfi`, use the automatic installation script: 
-
-    wget https://raw.githubusercontent.com/ammaraziz/wfi/master/tools/auto_install.sh
-    bash auto_install.sh
-
-Currently in testing phase, please create an issue if you run into any problems.
-
-### Manual Installation
+### Installation
 
 1. Install `miniconda`: https://docs.conda.io/en/latest/miniconda.html
 2. Install `snakemake`: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
