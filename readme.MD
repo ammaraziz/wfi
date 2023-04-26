@@ -30,7 +30,7 @@ Currently in testing phase, please create an issue if you run into any problems.
 2. Install `snakemake`: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
     ```
     conda install -n base -c conda-forge mamba
-    mamba install -c bioconda -c conda-forge snakemake-minimal
+    mamba install -c bioconda -c conda-forge snakemake-minimal python=3.9
     ```
 3. Install `cutadapt` and `biopython`:
     ```
