@@ -43,14 +43,12 @@ Currently in testing phase, please create an issue if you run into any problems.
     ```
  Note: installing r packages through conda is troublesome for some, if so install manually in R. 
    
-5. Final step! Download the latest `wfi` release (see the side ->)
-	- Put this in your `/home/$USERNAME/bin/`
-	- Uncompress the .zip file
-	- Navigate to `/wfi/bin/`
-	- Uncompress `flu-amd.zip`
-	- Copy the RSV module from `/wfi/bin/custom_modules/` to `/wfi/bin/flu-amd/IRMA_RES/modules/`
+5. Install custom verison of IRMA which contains the RSV module:
+    ```
+    mamba install -c ammaraziz irma 
+    ```
+6. Finally, download this repository and store in your /bin/
 
-In the future the installation process will be simplified, I promise! Any issues please email, I will be happy to assist.
 
 ---
 ### Usage
