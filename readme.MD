@@ -25,7 +25,7 @@ Note: This pipeline is not ready for general use, while it generally works, it i
     ```
 3. Install `cutadapt` and `biopython`:
     ```
-    mamba install -c bioconda -c conda-forge cutadapt biopython
+    mamba install -c bioconda -c conda-forge cutadapt biopython bbmap
     ```
 4. Install R (>3.6 should work) and R packages:
     ```
