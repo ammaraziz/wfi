@@ -11,6 +11,7 @@
 
 input_dir: input/
 output_dir: results/
+adapters: adapters/
 
 # Organism
 # [FLU, RSV, CoV, EBOLA, FLU_AD]
