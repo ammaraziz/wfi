@@ -15,7 +15,23 @@ Note: This pipeline is not ready for general use, while it generally works, it i
 
 ---
 
-### Installation
+### Installation - short
+
+1. Install `miniconda`: https://docs.conda.io/en/latest/miniconda.html
+2. Install the latest `mamba`:
+    ```
+    conda install -n base -c conda-forge mamba
+    ```
+3. Install dependencies:
+    ```
+    mamba env create -f conda.yaml
+    ```
+4. Activate `wfi` environment:
+    ```
+    conda activate wfi
+    ```
+
+### Installation - long
 
 1. Install `miniconda`: https://docs.conda.io/en/latest/miniconda.html
 2. Install `snakemake`: https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
@@ -46,7 +62,7 @@ Note: This pipeline is not ready for general use, while it generally works, it i
 
 To use the pipeline, follow these steps:
 
-1. Navigate to `wfi_config.yaml` and modify as appropriate:
+1. Navigate to `config.yaml` and modify as appropriate:
 
 | Params | Values | Information |
 | --- | --- | --- |
@@ -67,10 +83,10 @@ To use the pipeline, follow these steps:
 
 3. Test the pipeline, this will output all the commands that will be run. Look for errors (red).
 ```
-% snakemake -np
+% snakemake -nq
 ```
 
-4. Run the pipeline, with option -j to specify number of cores to use.
+4. Run the pipeline, with option `-j` to specify number of cores to use.
 ```
 % snakemake -j 8
 ```
