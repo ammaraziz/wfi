@@ -28,7 +28,7 @@ technology: illumina
 # [standard, tile]
 # standard uses cutadapt
 # tile uses bbduk
-trim_prog: tile
+trim_prog: standard
 # only for trim_prog 'tile'
 # only for influenza
 # specifies organism specific primers
