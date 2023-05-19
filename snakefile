@@ -29,7 +29,7 @@ os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
 
 
 # global variables
-configfile: "config.yaml"
+configfile: "config/config.yaml"
 IFQ = config["input_dir"]
 workspace = config["output_dir"]
 org = config["organism"].upper()
