@@ -6,8 +6,8 @@ channels:
   - ammaraziz
 dependencies:
   - cutadapt
-  - python>3.5
-  - biopython
+  - python=3.9
+  - biopython=1.78
   - bbmap
   - r-optparse
   - r-ggplot2
