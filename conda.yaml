@@ -1,23 +1,20 @@
-name: classification2
+name: wfi
 channels:
   - conda-forge
   - bioconda
   - r
+  - ammaraziz
 dependencies:
   - cutadapt
   - python>3.5
+  - biopython
+  - bbmap
+  - r-optparse
   - r-ggplot2
   - r-stringr
   - r-dplyr
   - r-tidyr
   - r-cowplot
   - r-gridExtra
-  - pip
-  - GitPython
-  - pip:
-    - snakemake
-    - cutadapt
-    - git+https://github.com/ammaraziz/wfi.git
-
-
-
+  - r-furrr
+  - ammaraziz::irma
