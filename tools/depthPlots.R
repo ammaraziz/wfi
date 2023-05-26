@@ -227,8 +227,8 @@ plot_rsv_cov <- function(data_aa, plot_name, vcf) {
               aes(xmin = gstart,
                   xmax = gend, 
                   ymin = 0, ymax = -100), 
-              color = c("red", "grey", "green", "yellow", "red", "grey", "green", "yellow", "red", "grey"),
-              fill = c("red", "grey", "green", "yellow", "red", "grey", "green", "yellow", "red", "grey")) +
+              color = rsv_gene_locs$colors,
+              fill = rsv_gene_locs$colors) +
     # gene names
     geom_text(data = rsv_gene_locs,
               aes(x = gstart + (0.05 * gstart), 

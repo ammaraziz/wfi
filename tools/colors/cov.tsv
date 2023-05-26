@@ -1,4 +1,4 @@
-gene	gstart	gend	color
+gene	gstart	gend	colors
 ORF1ab	266	21555	red
 S	21563	25384	grey
 ORF3a	25393	26220	green

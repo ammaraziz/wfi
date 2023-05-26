@@ -1,4 +1,4 @@
-gene	gstart	gend	color
+gene	gstart	gend	colors
 NS1	45	576	red
 NS2	596	1097	grey
 N	1125	2329	green
