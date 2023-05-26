@@ -5,6 +5,7 @@ channels:
   - r
   - ammaraziz
 dependencies:
+  - snakemake
   - cutadapt
   - python=3.9
   - biopython=1.78

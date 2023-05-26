@@ -187,36 +187,35 @@ plot_rsv_cov <- function(data_aa, plot_name, vcf) {
   # plot_name    :   character of plot name
   
   # catch empty or missing vcf files
-  tryCatch(expr = {
-    minor_vars <- get_minor_vars(vcf)}, 
-    error = function(e) {
-      stop(message(paste0("Error, sample names contains illegal characters, please remove: ", plot_name)))
-    }
+  minor_vars <- get_minor_vars(vcf)
+  tryCatch(
+      expr = {
+          minor_loc = minor_vars$pos
+          minor_dp = round(minor_vars$dp * minor_vars$af, digits = 1)
+          snp = paste0(minor_vars$ref, minor_vars$pos, minor_vars$alt, " :DP", minor_dp)
+          
+          y_centre = mean(range(data_aa$coverage))
+          y_max = max(data_aa$coverage) - ((y_centre / 20) * 3)
+          x_minor_unit = mean(range(data_aa$genomic_position)) / 30
+          
+          annotations <- list(
+              geom_vline(xintercept = minor_loc, color = "grey"),
+              annotate(
+                  geom = "text", x = minor_loc,
+                  y = y_max, label = snp, color = "black", angle = 90, size = 3
+              )
+          )
+      },
+      error = function(e){
+          annotations <<- list()
+      }
   )
-  
-  if (minor_vars == 0 | minor_vars == 00) {
-    annotations <- list()
-  } else {
-    minor_loc <- minor_vars$pos
-    minor_dp <- round(minor_vars$dp * minor_vars$af, digits = 1)
-    snp <- paste0(minor_vars$ref, minor_vars$pos, minor_vars$alt, " - DP:", minor_dp)
-    
-    y_centre <- mean(range(data_aa$coverage))
-    y_max <- max(data_aa$coverage) - ((y_centre / 20) * 3)
-    x_minor_unit <- mean(range(data_aa$genomic_position)) / 30
-    
-    annotations <- list(
-      geom_vline(xintercept = minor_loc, color = "black", size = 0.25),
-      annotate(
-        geom = "text", x = minor_loc,
-        y = y_max, label = snp, color = "black", angle = 90, size = 2.5))
-  }
   
   p <- ggplot(data_aa, aes(x = genomic_position, y = coverage)) +
     # primer regions
     geom_rect(data = rsv_primer, inherit.aes = FALSE,
-              aes(xmin = loc_start,
-                  xmax = loc_end,
+              aes(xmin = start,
+                  xmax = end,
                   ymin = -Inf, ymax = Inf, 
                   fill = c("red", "green", "blue", "yellow")),
               alpha = 0.3) +
@@ -225,16 +224,16 @@ plot_rsv_cov <- function(data_aa, plot_name, vcf) {
     geom_hline(yintercept = -50) +
     # genes displayed below
     geom_rect(data = rsv_gene_locs, inherit.aes = FALSE,
-              aes(xmin = loc_start,
-                  xmax = loc_end, 
+              aes(xmin = gstart,
+                  xmax = gend, 
                   ymin = 0, ymax = -100), 
               color = c("red", "grey", "green", "yellow", "red", "grey", "green", "yellow", "red", "grey"),
               fill = c("red", "grey", "green", "yellow", "red", "grey", "green", "yellow", "red", "grey")) +
     # gene names
     geom_text(data = rsv_gene_locs,
-              aes(x = loc_start + (0.05 * loc_start), 
+              aes(x = gstart + (0.05 * gstart), 
                   y = -50, 
-                  label = gene_name), 
+                  label = gene), 
               size = 3) +
     
     annotations +
@@ -284,4 +283,10 @@ plot_combine_flu <- function(file_names) {
   nRow <- 2
   plots_combined <- marrangeGrob(plots, ncol = nCol, nrow = nRow)
   return(plots_combined)
+}
+
+read_gff = function(file){
+    gff = read.delim(file, header = F, sep = "\t") %>%
+        filter(V3 == 'gene')
+    
 }

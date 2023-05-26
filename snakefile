@@ -24,8 +24,8 @@ from Bio.SeqRecord import SeqRecord
 import snakemake
 
 # export IRMA into $PATH of linux
-irma_path = "bin/flu-amd/"
-os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
+# irma_path = "bin/flu-amd/"
+# os.environ["PATH"] += os.pathsep + os.pathsep.join([irma_path])
 
 
 # global variables
