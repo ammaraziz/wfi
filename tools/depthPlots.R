@@ -256,8 +256,8 @@ plot_combine_rsv <- function(file_names) {
                               plot_rsv_cov(data_aa = file_names$data_aa[[i]],
                                            plot_name = file_names$sample_name[i],
                                            vcf = file_names$vcf[i])
-                            }
-  )
+                                }
+                            )
   
   nCol <- 4
   nRow <- 2
@@ -275,18 +275,12 @@ plot_combine_flu <- function(file_names) {
                                            sample_name = file_names$sample_name[i],
                                            gene = file_names$fname[i],
                                            vcf = file_names$vcf[i])
-                            }
-  )
+                                }
+                            )
   
   n <- length(plots)
   nCol <- 4
   nRow <- 2
   plots_combined <- marrangeGrob(plots, ncol = nCol, nrow = nRow)
   return(plots_combined)
-}
-
-read_gff = function(file){
-    gff = read.delim(file, header = F, sep = "\t") %>%
-        filter(V3 == 'gene')
-    
 }
