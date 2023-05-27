@@ -1,0 +1,21 @@
+name: wfi
+channels:
+  - conda-forge
+  - bioconda
+  - r
+  - ammaraziz
+dependencies:
+  - snakemake
+  - cutadapt
+  - python=3.9
+  - biopython=1.78
+  - bbmap
+  - r-optparse
+  - r-ggplot2
+  - r-stringr
+  - r-dplyr
+  - r-tidyr
+  - r-cowplot
+  - r-gridExtra
+  - r-furrr
+  - ammaraziz::irma
