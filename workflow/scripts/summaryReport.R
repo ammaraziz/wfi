@@ -3,7 +3,7 @@
 # this script runs from the command line
 # it generates a report from an IRMA run to summaries all the genes/samples
 
-
+pdf(NULL)
 library(optparse, quietly=TRUE)
 
 option_list <- list(
@@ -66,48 +66,46 @@ if ( !(toupper(opts$organism) %in% c('RSV', 'FLU')) ) {
   stop(paste("Organism selected:", opts$organism, 'is not RSV or FLU.'))}
 
 ###################### vars for plotting
-rsv_gene_locs = data.frame(loc_start = c(44, 596, 1125, 2331, 3224, 4190, 4644, 5619, 7567, 8460),
-                           loc_end = c(576, 1097, 2329, 3220, 4180, 4599, 5565,7521, 8527, 15037),
-                           gene_name = c("NS1", "NS2", "N", "P", "M", "SH", "G", "F", "M2", "L"))
-
-rsv_primer = data.frame(loc_start = c(49, 3944, 7215, 10959),
-                      loc_end = c(4049, 7528, 11165, 15333))
-
-gcolor = list("A_HA_H1" = '#a6cee3', 
-              "A_HA_H3" = '#a6cee3', 
-              "A_HA_H5" = '#a6cee3',
-              "A_HA_H7" ='#a6cee3',
-              "A_HA_H9" ='#a6cee3',
-              "A_HA_H10" = '#a6cee3',
-              "A_MP" = '#1f78b4',
-              "A_NA_N1" = '#b2df8a',
-              "A_NA_N2" = '#b2df8a',
-              "A_NA_N4" = '#b2df8a',
-              "A_NA_N5" = '#b2df8a',
-              "A_NA_N6" = '#b2df8a',
-              "A_NA_N7" = '#b2df8a',
-              "A_NA_N8" = '#b2df8a',
-              "A_NP" = '#33a02c',
-              "A_NS" = '#fb9a99',
-              "A_PA" = '#ff7f00',
-              "A_PB1" = '#6a3d9a',
-              "A_PB2" = '#b15928',
-              "B_HA" = '#a6cee3',
-              "B_NA" = '#b2df8a',
-              "B_NP" = '#33a02c',
-              "B_NS" = '#fb9a99',
-              "B_PA" = '#ff7f00',
-              "B_PB1" = '#6a3d9a',
-              "B_PB2" = '#b15928',
-              "B_MP" = '#1f78b4')
+rsv_gene_locs = read.table("resources/colors/rsv.tsv", header = T, sep = "\t")
+rsv_primer = data.frame(start = c(49, 3944, 7215, 10959),
+                        end = c(4049, 7528, 11165, 15333))
+flu = read.table("resources/colors/flu.tsv", header = T, sep = "\t", comment.char = "")
+gcolor = split(flu$colors, flu$gene)
+# gcolor = list("A_HA_H1" = '#a6cee3', 
+#               "A_HA_H3" = '#a6cee3', 
+#               "A_HA_H5" = '#a6cee3',
+#               "A_HA_H7" ='#a6cee3',
+#               "A_HA_H9" ='#a6cee3',
+#               "A_HA_H10" = '#a6cee3',
+#               "A_MP" = '#1f78b4',
+#               "A_NA_N1" = '#b2df8a',
+#               "A_NA_N2" = '#b2df8a',
+#               "A_NA_N4" = '#b2df8a',
+#               "A_NA_N5" = '#b2df8a',
+#               "A_NA_N6" = '#b2df8a',
+#               "A_NA_N7" = '#b2df8a',
+#               "A_NA_N8" = '#b2df8a',
+#               "A_NP" = '#33a02c',
+#               "A_NS" = '#fb9a99',
+#               "A_PA" = '#ff7f00',
+#               "A_PB1" = '#6a3d9a',
+#               "A_PB2" = '#b15928',
+#               "B_HA" = '#a6cee3',
+#               "B_NA" = '#b2df8a',
+#               "B_NP" = '#33a02c',
+#               "B_NS" = '#fb9a99',
+#               "B_PA" = '#ff7f00',
+#               "B_PB1" = '#6a3d9a',
+#               "B_PB2" = '#b15928',
+#               "B_MP" = '#1f78b4')
 
 
 
 ###################################
 
-source("./tools/depthPlots.R")
-source("./tools/depthTable.R")
-source("./tools/qcTable.R")
+source("workflow/scripts/depthPlots.R")
+source("workflow/scripts/depthTable.R")
+source("workflow/scripts/qcTable.R")
 
 main  <- function() {
 

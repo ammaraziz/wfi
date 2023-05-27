@@ -1,6 +1,5 @@
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(dplyr))
-suppressPackageStartupMessages(library(tidyr))
 
 min_reads_metric = c('RSV' = 5000, 'FLU' = 2500)
 

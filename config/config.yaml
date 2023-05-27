@@ -10,12 +10,12 @@
 ####################################
 
 input_dir: input/
-output_dir: results/
-adapters: adapters/
+output_dir: output/
+adapters: resources/adapters/
 
 # Organism
 # [FLU, RSV, CoV, EBOLA, FLU_AD]
-organism: FLU
+organism: RSV
 
 # Secondary assembly
 # [True, False]

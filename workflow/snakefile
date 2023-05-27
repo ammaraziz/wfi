@@ -26,6 +26,7 @@ seq_technology = config["technology"].lower()
 secondary_assembly = config["secondary_assembly"]
 subset = config["subset"]
 trim_prog = config["trim_prog"]
+basedir = workflow.current_basedir
 
 if org == 'FLU':
     if seq_technology == 'illumina':
@@ -89,10 +90,12 @@ onstart:
     print("Trimming using: " + str(trim_prog))
 
 onsuccess:
-    print("wfi has successfully completed!")
+    print("\n")
+    print("\033[1m\033[92mSuccess! Check assembles/ folder for results.\033[0m")
 
 onerror:
-    print("oops wfi has run into an issue. Look above, If rule SummaryReport failed there is no need to worry!")
+    print("\n")
+    print("\033[1m\033[96m Error detected. READ THE ERROR, check output folder first\033[0m")
 
 ## Sequencing technology ------------------------------------------------------------------------
 if seq_technology == 'illumina':
@@ -390,7 +393,7 @@ rule renameSubtype:
         org = org,
         subset = seg_to_keep
     shell:"""
-    python scripts/subtyper.py \
+    python {basedir}/scripts/subtyper.py \
     -i {params.assemblies} \
     -o {params.assemblies} \
     -r {params.org} \
@@ -409,7 +412,7 @@ rule SummaryReport:
         loc_out = join(workspace + "assemblies/"),
         org = org
     shell:"""
-        scripts/summaryReport.R \
+        {basedir}/scripts/summaryReport.R \
         -i {params.ws:q} \
         -o {params.loc_out:q} \
         -r '{params.org}'

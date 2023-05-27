@@ -33,19 +33,18 @@ calc_stats <- function(coverage_df, org) {
   # coverage_df      : the aa df read in
   # org     : FLU or RSV
   # returns : list(total_mean, total_median, amplicon1_mean, amplicon1_median)
-  
   if (toupper(org) == "RSV") {
     out <- coverage_df %>%
       summarise(total_mean = round(mean(Coverage.Depth)), 
                 total_median = round(median(Coverage.Depth)),
-                amplicon1_mean = round(mean(Coverage.Depth[rsv_primer$loc_start[1]:rsv_primer$loc_end[1]])),
-                amplicon1_median = round(median(Coverage.Depth[rsv_primer$loc_start[1]:rsv_primer$loc_end[1]])),
-                amplicon2_mean = round(mean(Coverage.Depth[rsv_primer$loc_start[2]:rsv_primer$loc_end[2]])),
-                amplicon2_median = round(median(Coverage.Depth[rsv_primer$loc_start[2]:rsv_primer$loc_end[2]])),
-                amplicon3_mean = round(mean(Coverage.Depth[rsv_primer$loc_start[3]:rsv_primer$loc_end[3]])),
-                amplicon3_median = round(median(Coverage.Depth[rsv_primer$loc_start[3]:rsv_primer$loc_end[3]])),
-                amplicon4_mean = round(mean(Coverage.Depth[rsv_primer$loc_start[4]:length(Coverage.Depth)])),
-                amplicon4_median = round(median(Coverage.Depth[rsv_primer$loc_start[4]:length(Coverage.Depth)]))
+                amplicon1_mean = round(mean(Coverage.Depth[rsv_primer$start[1]:rsv_primer$end[1]])),
+                amplicon1_median = round(median(Coverage.Depth[rsv_primer$start[1]:rsv_primer$end[1]])),
+                amplicon2_mean = round(mean(Coverage.Depth[rsv_primer$start[2]:rsv_primer$end[2]])),
+                amplicon2_median = round(median(Coverage.Depth[rsv_primer$start[2]:rsv_primer$end[2]])),
+                amplicon3_mean = round(mean(Coverage.Depth[rsv_primer$start[3]:rsv_primer$end[3]])),
+                amplicon3_median = round(median(Coverage.Depth[rsv_primer$start[3]:rsv_primer$end[3]])),
+                amplicon4_mean = round(mean(Coverage.Depth[rsv_primer$start[4]:length(Coverage.Depth)])),
+                amplicon4_median = round(median(Coverage.Depth[rsv_primer$start[4]:length(Coverage.Depth)]))
                 )
     out$sampleID = coverage_df$sampleID[1]
     out$Manual_Check_Required = abs(out$total_mean/out$total_median - 1) > 0.2
