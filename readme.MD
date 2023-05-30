@@ -22,8 +22,13 @@ Note: This pipeline is not ready for general use, while it generally works, it i
     ```
     conda install -n base -c conda-forge mamba
     ```
-3. Install dependencies:
+3. Git clone this repo:
     ```
+    git clone --depth 1 https://github.com/ammaraziz/wfi
+    ```
+5. Install dependencies:
+    ```
+    cd wfi
     mamba env create -f conda.yaml
     ```
 4. Activate `wfi` environment:
