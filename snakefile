@@ -139,12 +139,12 @@ if run_mode not in ['paired', 'single']:
     sys.exit("Configuration incorrect, check 'run_mode' it must be: paired or single")
 if run_mode == 'paired':
     rule_mode = [
-    expand(workspace + "qualtrim/{sample}.R1.fastq", sample = SAMPLES),
-    expand(workspace + "qualtrim/{sample}.R2.fastq", sample = SAMPLES)
+    expand(workspace + "qualtrim/{sample}.R1.fastq.gz", sample = SAMPLES),
+    expand(workspace + "qualtrim/{sample}.R2.fastq.gz", sample = SAMPLES)
     ]
 if run_mode == 'single':
     rule_mode = [
-    expand(workspace + "qualtrim/{sample}.fastq", sample = SAMPLES)
+    expand(workspace + "qualtrim/{sample}.fastq.gz", sample = SAMPLES)
     ]
 
 ## Trimming ---------------------------------------------------------------------
@@ -181,8 +181,8 @@ if run_mode == 'paired':
                 faR1 = expand(IFQ + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R1"]),
                 faR2 = expand(IFQ + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R2"])
             output:
-                R1out = workspace + "qualtrim/{sample}.R1.fastq",
-                R2out = workspace + "qualtrim/{sample}.R2.fastq",
+                R1out = workspace + "qualtrim/{sample}.R1.fastq.gz",
+                R2out = workspace + "qualtrim/{sample}.R2.fastq.gz",
                 status = workspace + "status/filter_{sample}.txt"
             params:
                Fadapter = f"bin/adapters/{org}_left.fa",
@@ -272,8 +272,8 @@ if run_mode == 'paired':
     # Assembly
     rule irma_paired:
         input:
-            R1out = workspace + "qualtrim/{sample}.R1.fastq",
-            R2out = workspace + "qualtrim/{sample}.R2.fastq"
+            R1out = workspace + "qualtrim/{sample}.R1.fastq.gz",
+            R2out = workspace + "qualtrim/{sample}.R2.fastq.gz"
         output:
             status = workspace + "status/irma_{sample}.txt"
         params:
@@ -296,7 +296,7 @@ elif run_mode == 'single':
             input:
                 single = expand(IFQ + "{{sample}}.fastq.gz"),
             output:
-                filtered = workspace + "qualtrim/{sample}.fastq",
+                filtered = workspace + "qualtrim/{sample}.fastq.gz",
                 status = workspace + "status/filter_{sample}.txt"
             params:
                Fadapter = f"bin/adapters/{org}_left.fa",
@@ -376,7 +376,7 @@ elif run_mode == 'single':
     #Assemlby
     rule irma_single:
         input:
-            single = workspace + "qualtrim/{sample}.fastq"
+            single = workspace + "qualtrim/{sample}.fastq.gz"
         output:
             status = workspace + "status/irma_{sample}.txt"
         params:
