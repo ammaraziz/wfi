@@ -10,6 +10,7 @@ dependencies:
   - python=3.9
   - biopython=1.78
   - bbmap
+  - r-base
   - r-optparse
   - r-ggplot2
   - r-stringr
