@@ -103,9 +103,9 @@ gcolor = split(flu$colors, flu$gene)
 
 ###################################
 
-source("workflow/scripts/depthPlots.R")
-source("workflow/scripts/depthTable.R")
-source("workflow/scripts/qcTable.R")
+source("scripts/depthPlots.R")
+source("scripts/depthTable.R")
+source("scripts/qcTable.R")
 
 main  <- function() {
 

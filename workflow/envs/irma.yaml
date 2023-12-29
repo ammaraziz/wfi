@@ -1,0 +1,7 @@
+channels:
+  - bioconda
+  - conda-forge
+  - ammaraziz
+dependencies:
+    - python = 3.9
+    - ammaraziz::irma
