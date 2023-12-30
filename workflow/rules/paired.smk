@@ -1,4 +1,4 @@
-rule filter_std:
+rule filter:
     input:
         faR1 = expand(config["input_dir"] + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R1"]),
         faR2 = expand(config["input_dir"] + "{{sample}}_L001_{pair}_001.fastq.gz", pair = ["R2"])
@@ -7,8 +7,8 @@ rule filter_std:
         R2out = config["output_dir"] + "qualtrim/{sample}.R2.fastq",
         status = config["output_dir"] + "status/filter_{sample}.txt"
     params:
-        Fadapter = f"{config['adapters']}/{org}_left.fa",
-        Radapter = f"{config['adapters']}/{org}_right.fa"
+        Fadapter = f"{config['adapters']}/{ORG}_left.fa",
+        Radapter = f"{config['adapters']}/{ORG}_right.fa"
     threads: 2
     message: "Filtering and trimming {wildcards.sample} reads."
     log: config["output_dir"] + "logs/trim_{sample}.txt"
@@ -19,7 +19,7 @@ rule filter_std:
         -A file:{params.Radapter} \
         -o {output.R1out} \
         -p {output.R2out} \
-        --report full 1> {log}
+        --report full &> {log}
 
         touch {output.status}
     """
@@ -33,7 +33,7 @@ rule irma_paired:
         status = config["output_dir"] + "status/irma_{sample}.txt"
     params:
         folder = config["output_dir"] + "assemblies/{sample}/",
-        run_module = lambda wildcards: irma_module,
+        run_module = lambda wildcards: IRMAMODULE,
     log: config["output_dir"] + "logs/irma_{sample}.txt"
     message: "IRMA is running for {wildcards.sample}"
     threads: 10

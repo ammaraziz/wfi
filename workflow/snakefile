@@ -4,99 +4,101 @@ from os.path import join
 include: "rules/common.smk"
 configfile: "config/config.yaml"
 
-org = config["organism"].upper()
-seq_technology = config["technology"].lower()
-secondary_assembly = config["secondary_assembly"]
-subset = config["subset"]
-basedir = workflow.current_basedir
+INDIR = config["input_dir"]
+OUTDIR = config["output_dir"]
+ORG = config["organism"].upper()
+PLATFORM = config["technology"].lower()
+SECONDARY = config["secondary_assembly"]
+SUBSET = config["subset"]
+#basedir = workflow.current_basedir
+
+print(workflow.cores, workflow.nodes)
 
 if 'use_conda' in config and config['use_conda']:
     workflow._use_conda = True
 
 ##### setup samples #####
-if seq_technology == 'illumina':
-    SAMPLE_NAME, SAMPLE_NUMBER, lane_number, PAIR = glob_wildcards(config["input_dir"] + "/{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
+if PLATFORM == 'illumina':
+    SAMPLE_NAME, SAMPLE_NUMBER, _, PAIR = glob_wildcards(INDIR + "/{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
     SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
-    run_mode = 'paired'
-elif seq_technology == 'ont':
-    SAMPLE_NAME = glob_wildcards(config["input_dir"] + config['pattern_ont'])[0]
+    RUNMODE = 'paired'
+elif PLATFORM == 'ont':
+    SAMPLE_NAME = glob_wildcards(INDIR + config['pattern_ont'])[0]
     SAMPLES = SAMPLE_NAME
-    run_mode = 'single'
-elif seq_technology == 'pgm':
-    SAMPLE_NAME = glob_wildcards(config["input_dir"] + config['pattern_pgm'])[0]
+    RUNMODE = 'single'
+elif PLATFORM == 'pgm':
+    SAMPLE_NAME = glob_wildcards(INDIR + config['pattern_pgm'])[0]
     SAMPLES = SAMPLE_NAME
-    run_mode = 'single'
+    RUNMODE = 'single'
 
-if run_mode == 'paired':
-    rule_mode = [
-        expand(config["output_dir"] + "qualtrim/{sample}.R1.fastq", sample = SAMPLES),
-        expand(config["output_dir"] + "qualtrim/{sample}.R2.fastq", sample = SAMPLES)
+if RUNMODE == 'paired':
+    MODE = [
+        expand(OUTDIR + "qualtrim/{sample}.R1.fastq", sample = SAMPLES),
+        expand(OUTDIR + "qualtrim/{sample}.R2.fastq", sample = SAMPLES)
     ]
-if run_mode == 'single':
-    rule_mode = [
-        expand(config["output_dir"] + "qualtrim/{sample}.fastq", sample = SAMPLES)
+if RUNMODE == 'single':
+    MODE = [
+        expand(OUTDIR + "qualtrim/{sample}.fastq", sample = SAMPLES)
     ]
 
 ##### org setup #####
-if org == 'FLU':
-    if seq_technology == 'illumina':
-        if secondary_assembly is True:
-            irma_module = 'FLU-secondary'
+if ORG == 'FLU':
+    if PLATFORM == 'illumina':
+        if SECONDARY is True:
+            IRMAMODULE = 'FLU-secondary'
         else:
-            irma_module = 'FLU'
-    elif seq_technology == 'ont' and secondary_assembly == False:
-        irma_module = 'FLU-minion'
-    elif seq_technology == 'pgm' and secondary_assembly == False:
-        irma_module = 'FLU-pgm'
+            IRMAMODULE = 'FLU'
+    elif PLATFORM == 'ont' and SECONDARY == False:
+        IRMAMODULE = 'FLU-minion'
+    elif PLATFORM == 'pgm' and SECONDARY == False:
+        IRMAMODULE = 'FLU-pgm'
     else:
         sys.exit(
             f'Assembly module unknown. Check config for options:\n'
-            f'organism {org}\n' 
-            f'secondary_assembly {secondary_assembly}\n'
-            f'techology {seq_technology}'
+            f'organism {ORG}\n' 
+            f'secondary_assembly {SECONDARY}\n'
+            f'techology {PLATFORM}'
             )
     
     # trim org settings just for flu
-    trim_org = config["trim_org"]
+    TRIM = config["trim_org"]
 
     # gene segment settings
-    if subset is True:
-        seg_to_keep = "subset"
-    elif subset is False:
-        seg_to_keep = "all"
+    if SUBSET is True:
+        SEGTOKEEP = "subset"
+    elif SUBSET is False:
+        SEGTOKEEP = "all"
     else:
         sys.exit("Check config file for 'subset' param. If unsure set to: False")
 
-elif org == 'RSV':
-    # trim org settings, blank for RSV
-    trim_org = ""
-    seg_to_keep = "rsv"
-    if seq_technology == 'illumina': 
-        if secondary_assembly is True:
-            irma_module = 'RSV-secondary'
+elif ORG == 'RSV':
+    TRIM = ""
+    SEGTOKEEP = "rsv"
+    if PLATFORM == 'illumina': 
+        if SECONDARY is True:
+            IRMAMODULE = 'RSV-secondary'
         else:
-            irma_module = 'RSV'
-    elif seq_technology and secondary_assembly is False:
-        irma_module = 'RSV-minion'
+            IRMAMODULE = 'RSV'
+    elif PLATFORM and SECONDARY is False:
+        IRMAMODULE = 'RSV-minion'
     else:
         sys.exit(
             f'Assembly module unknown. Check config for options:\n'
-            f'organism {org}\n' 
-            f'secondary_assembly {secondary_assembly}\n'
-            f'techology {seq_technology}'
+            f'organism {ORG}\n' 
+            f'secondary_assembly {SECONDARY}\n'
+            f'techology {PLATFORM}'
             )
 
 else:
     raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
 
-
 ##### Messesges #####
 onstart:
-    print("Run mode: " + run_mode)
-    print("Sequence Technology: " + config["technology"].lower())
-    print("Organism: " + config["organism"].upper())
-    print("IRMA Module: " + irma_module)
-    print("Secondary Assembly: " + str(secondary_assembly))
+    print("Run mode: " + RUNMODE)
+    print("Sequence Technology: " + PLATFORM)
+    print("Organism: " + ORG)
+    print("IRMA Module: " + IRMAMODULE)
+    print("Secondary Assembly: " + str(SECONDARY))
 
 onsuccess:
     print("\n")
@@ -110,18 +112,18 @@ onerror:
 rule all:
     input:
         # singe or paired
-        rule_mode,
+        MODE,
         # status
-        expand(config["output_dir"] + "status/filter_{sample}.txt", sample = SAMPLES),
-        expand(config["output_dir"] + "status/irma_{sample}.txt", sample = SAMPLES),
-        join(config["output_dir"] + "status/subtyping_complete.txt"),
-        join(config["output_dir"] + "status/plotting_complete.txt")
+        expand(OUTDIR + "status/filter_{sample}.txt", sample = SAMPLES),
+        expand(OUTDIR + "status/irma_{sample}.txt", sample = SAMPLES),
+        join(OUTDIR + "status/subtyping_complete.txt"),
+        join(OUTDIR + "status/plotting_complete.txt")
 
 ##### Modules #####
 #include: "rules/ref.smk"
-if run_mode == 'single':
+if RUNMODE == 'single':
     include: "rules/single.smk"
-if run_mode == 'paired':
+if RUNMODE == 'paired':
     include: "rules/paired.smk"
 
-include: "rules/qc.smk"
+include: "rules/report.smk"
