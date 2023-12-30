@@ -95,20 +95,20 @@ To use the pipeline, follow these steps:
 	
 1. Pipeline will output correctly formatted names located in:
 	
-> `{output_dir}`/assemblies/rename/
+> `{output_dir}`/irma/rename/
 
 2. Sorted by subtype - most likely the disired output:
 	
-> `{output_dir}`/assemblies/rename/type/FLU`{A|B}`
+> `{output_dir}`/irma/rename/type/FLU`{A|B}`
 
 3. IRMA assembly specific files, see: https://wonder.cdc.gov/amd/flu/irma/output.html
 	
-> `{output_dir}`/assemblies/`{sampleID}`/
+> `{output_dir}`/irma/`{sampleID}`/
 
 4. Files for depth and summary info located in:
 	
-> `{output_dir}`/assemblies/`{sampleID}`/figures/
-> `{output_dir}`/assemblies/`{sampleID}`/tables/
+> `{output_dir}`/irma/`{sampleID}`/figures/
+> `{output_dir}`/irma/`{sampleID}`/tables/
 	
 
 

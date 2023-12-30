@@ -3,7 +3,7 @@
 '''
 Process and subtype IRMA output
 subtyper.py -i [inputDir] -o [outputdir] -r [species] --subset [all, subset rsv]
-inputDir is expected to be the /assemblies/ folder
+inputDir is expected to be the /irma/ folder
 
 '''
 
@@ -51,7 +51,7 @@ def getSamples(inputFolder):
     abs_path = [
         os.path.abspath(os.path.join(inputFolder, p)) for p 
         in os.listdir(inputFolder)
-        if p not in ['rename', 'renamed', 'bySubtype'] and not p.startswith("NTC_")
+        if p not in ['rename', 'consensus', 'bySubtype'] and not p.startswith("NTC_")
         ]
     output = list(filter(os.path.isdir, abs_path))
     return(output)
@@ -158,7 +158,7 @@ def register_arguments():
     )
 
     parser.add_argument("-i", "--input", required=True,
-                        help="Input directory eg '/assemblies/")
+                        help="Input directory eg '/irma/")
     parser.add_argument("-o", "--output", required=True,
                         help="Output directory")
     parser.add_argument("-r", "--species", required=True,
@@ -172,7 +172,7 @@ def run():
     args = register_arguments()
     args.species = args.species.upper()
 
-    out_renamed = Path(args.output).joinpath("renamed")
+    out_renamed = Path(args.output).joinpath("consensus")
     out_subtyped = Path(args.output).joinpath('bySubtype')
     out_results = Path(args.output).joinpath("subtypes.tsv")
     os.makedirs(out_renamed, exist_ok=True)

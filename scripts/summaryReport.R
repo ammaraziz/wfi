@@ -35,7 +35,7 @@ usage_message = "Failed to parse command-line parameters.
 This script parses IRMA output files in a directory to produce useful plots collated in one location. 
 Usage:
       summaryReport.R -i [INPUTDIR] -o [OUTPUTDIR] -r [FLU or RSV]
-      summaryReport.R -i .../assemblies/ -o .../report/ -r flu
+      summaryReport.R -i .../irma/ -o .../report/ -r flu
 
 Input directory needs to be the wfi output directory called 'assemblies'
 The -r or --organism flag is needed because IRMA produces a file for each assembled contig (for flu thats 8 genes)
@@ -71,38 +71,8 @@ rsv_primer = data.frame(start = c(49, 3944, 7215, 10959),
                         end = c(4049, 7528, 11165, 15333))
 flu = read.table("resources/colors/flu.tsv", header = T, sep = "\t", comment.char = "")
 gcolor = split(flu$colors, flu$gene)
-# gcolor = list("A_HA_H1" = '#a6cee3', 
-#               "A_HA_H3" = '#a6cee3', 
-#               "A_HA_H5" = '#a6cee3',
-#               "A_HA_H7" ='#a6cee3',
-#               "A_HA_H9" ='#a6cee3',
-#               "A_HA_H10" = '#a6cee3',
-#               "A_MP" = '#1f78b4',
-#               "A_NA_N1" = '#b2df8a',
-#               "A_NA_N2" = '#b2df8a',
-#               "A_NA_N4" = '#b2df8a',
-#               "A_NA_N5" = '#b2df8a',
-#               "A_NA_N6" = '#b2df8a',
-#               "A_NA_N7" = '#b2df8a',
-#               "A_NA_N8" = '#b2df8a',
-#               "A_NP" = '#33a02c',
-#               "A_NS" = '#fb9a99',
-#               "A_PA" = '#ff7f00',
-#               "A_PB1" = '#6a3d9a',
-#               "A_PB2" = '#b15928',
-#               "B_HA" = '#a6cee3',
-#               "B_NA" = '#b2df8a',
-#               "B_NP" = '#33a02c',
-#               "B_NS" = '#fb9a99',
-#               "B_PA" = '#ff7f00',
-#               "B_PB1" = '#6a3d9a',
-#               "B_PB2" = '#b15928',
-#               "B_MP" = '#1f78b4')
-
-
 
 ###################################
-
 source("scripts/depthPlots.R")
 source("scripts/depthTable.R")
 source("scripts/qcTable.R")
@@ -127,8 +97,8 @@ main  <- function() {
   qc_loc = get_data_location(base_location = base_location, type = 'rc')
   qc_data = get_qc_data(qc_loc)
   qc_stats = calc_qc_stats(qc_data, org = opts$organism)
-  write.table(qc_stats, file = paste0(opts$output, 'summary_QC_table.tsv'), sep = "\t", row.names = F, quote = F)
-  write(qc_message, file = paste0(opts$output, 'summary_QC_table.tsv'), append = T)
+  write.table(qc_stats, file = paste0(opts$output, 'qc.tsv'), sep = "\t", row.names = F, quote = F)
+  write(qc_message, file = paste0(opts$output, 'qc.tsv'), append = T)
   
   # coverage table
   locs = get_data_location(base_location = base_location, type = 'cov')
@@ -138,8 +108,8 @@ main  <- function() {
     tmp = calc_stats(i, org = opts$organism)
     out_table = rbind(tmp, out_table)
   }
-  write.table(out_table, file = paste0(opts$output, 'summary_depth_table.tsv'), sep = "\t", row.names = F, quote = F)
-  write(cov_message, file = paste0(opts$output, 'summary_depth_table.tsv'), append = T)
+  write.table(out_table, file = paste0(opts$output, 'depth.tsv'), sep = "\t", row.names = F, quote = F)
+  write(cov_message, file = paste0(opts$output, 'depth.tsv'), append = T)
   
   if (opts$organism == "RSV") {# RSV
     final_out = plot_combine_rsv(file_names)
@@ -148,7 +118,7 @@ main  <- function() {
   } else {
     stop("Error: Organism not RSV or FLU. Check input")
   }
-  ggsave(filename =  paste0(opts$output, "depth_coverage_report.pdf"),
+  ggsave(filename =  paste0(opts$output, "depth_all.pdf"),
          plot = final_out, device = "pdf",
          dpi = 300,  width = 420, height = 297, units = 'mm')
 }

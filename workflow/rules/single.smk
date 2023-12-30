@@ -27,7 +27,7 @@ rule irma_single:
     output:
         status = config["output_dir"] + "status/irma_{sample}.txt"
     params:
-        folder = config["output_dir"] + "assemblies/{sample}/",
+        folder = config["output_dir"] + "irma/{sample}/",
         run_module = lambda wildcards: IRMAMODULE,
     log: config["output_dir"] + "logs/irma_{sample}.txt"
     message: "IRMA is running for {wildcards.sample}"
