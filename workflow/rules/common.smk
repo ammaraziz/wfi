@@ -4,9 +4,9 @@ From the amazing https://github.com/gbouras13/hybracter
 
 import sys
 import os
-import gzip
-from Bio import SeqIO
-from itertools import chain
+import pandas as pd
+from  pathlib import Path
+from collections import defaultdict
 
 def get_input_r1(wildcards):
     return dictReads[wildcards.sample]["R1"]
@@ -93,3 +93,45 @@ def parseSamples(csvfile, long_flag):
         sys.exit(1)
 
     return sampleDict
+
+def getIRMAFiles(irma_output: str) -> dict[str]:
+    '''
+    Get IRMA output files of interest
+    returns dict with absolute path
+
+    *coverage.a2m.txt
+    *.vcf
+    *.bam
+    READ_COUNTS.txt
+    '''
+    d = defaultdict(str)
+    p = Path(irma_output)
+
+    d['vcf'] = [str(x) for x in p.glob("*.vcf")]
+    d['coverage'] = [str(x) for x in (p/"tables").glob("*coverage.a2m.txt")]
+    d['bam'] = [str(x) for x in p.glob("*.bam")]
+    d['counts'] = str(p/"tables"/"READ_COUNTS.txt") if (p/"tables"/"READ_COUNTS.txt").exists() else []
+
+    return(d)
+
+def make_bed_for_masking(a2m: str, min_cov:int=20) -> None:
+    '''
+    Given *coverage.a2m.txt input, create bed file with low coverage
+    '''
+    try:
+        dat = pd.read_csv(a2m, sep='\t')
+    except Exception as e:
+        print(f"Error reading a2m file while trying to create bed file\n {e}")
+    # find positions which are below cutoff
+    dat = dat[dat['Alignment_State'].isin (['D', 'M'])]
+
+    b = list(dat['Coverage Depth'] < 20)
+    s = pd.Series(b)
+    grp = s.eq(False).cumsum()
+    arr = grp.loc[s.eq(True)] \
+            .groupby(grp) \
+            .apply(lambda x: [x.index.min(), x.index.max()])
+    print(arr)
+    return(arr)
+
+#make_bed_for_masking("/Users/aaziz/repos/wfi/tests/outputirma/RSV321_S1/tables/rsv_a2-coverage.a2m.txt")

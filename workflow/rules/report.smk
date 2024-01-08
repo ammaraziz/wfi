@@ -29,10 +29,10 @@ rule SummaryReport:
         loc_out = config["output_dir"] + "assemblies/",
         org = ORG
     shell:"""
-        scripts/summaryReport.R \
-        -i {params.ws:q} \
-        -o {params.loc_out:q} \
-        -r '{params.org}'
+    scripts/summaryReport.R \
+    -i {params.ws:q} \
+    -o {params.loc_out:q} \
+    -r '{params.org}'
 
-        touch {output.loc}
+    touch {output.loc}
     """

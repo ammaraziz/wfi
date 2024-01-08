@@ -1,6 +1,6 @@
 ##### Messesges #####
-input_dir: /Users/aaziz/Downloads/wfi_test/
-output_dir: /Users/aaziz/Downloads/wfi_output/
+input_dir: /Users/aaziz/repos/wfi/tests/
+output_dir: /Users/aaziz/repos/wfi/tests/output/
 adapters: resources/adapters/
 use_conda: true
 
@@ -16,10 +16,14 @@ secondary_assembly: False
 # [illumina, ont, pgm]
 technology: illumina
 
-# [standard, tile]
+# [standard, tiled]
 # Trimming mode
 # standard uses cutadapt
-trim_prog: standard
+trim_prog: tiled
+
+# Masking
+# set to 0 to disable masking
+maskdepth: 20
 
 # FLU Only
 # [True, False]

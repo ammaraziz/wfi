@@ -1,3 +1,4 @@
 .DS_Store
 .snakemake/*
 Rplots.pdf
+tests/output/*

@@ -1,45 +1,38 @@
 import sys, os
-
 from os.path import join
+from pathlib import Path
+
 include: "rules/common.smk"
 configfile: "config/config.yaml"
 
-INDIR = config["input_dir"]
-OUTDIR = config["output_dir"]
+INDIR = Path(config["input_dir"])
+OUTDIR = Path(config["output_dir"])
 ORG = config["organism"].upper()
 PLATFORM = config["technology"].lower()
 SECONDARY = config["secondary_assembly"]
+ADAPTERS = config['adapters']
 SUBSET = config["subset"]
-#basedir = workflow.current_basedir
-
-print(workflow.cores, workflow.nodes)
+MASKDEPTH = config['maskdepth']
+TRIMMODE = config["trim_prog"]
 
 if 'use_conda' in config and config['use_conda']:
     workflow._use_conda = True
 
 ##### setup samples #####
 if PLATFORM == 'illumina':
-    SAMPLE_NAME, SAMPLE_NUMBER, _, PAIR = glob_wildcards(INDIR + "/{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
-    SAMPLES = [i + "_" + x for i, x in zip(SAMPLE_NAME, SAMPLE_NUMBER)]
+    SAMPLE_NAME, SAMPLE_NUMBER, _, PAIR = glob_wildcards(INDIR / "{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
+    SAMPLES = [i + "_" + x for i, x in zip(set(SAMPLE_NAME), SAMPLE_NUMBER)]
     RUNMODE = 'paired'
+    
 elif PLATFORM == 'ont':
-    SAMPLE_NAME = glob_wildcards(INDIR + config['pattern_ont'])[0]
-    SAMPLES = SAMPLE_NAME
-    RUNMODE = 'single'
-elif PLATFORM == 'pgm':
-    SAMPLE_NAME = glob_wildcards(INDIR + config['pattern_pgm'])[0]
+    SAMPLE_NAME = glob_wildcards(INDIR / config['pattern_ont'])[0]
     SAMPLES = SAMPLE_NAME
     RUNMODE = 'single'
 
-if RUNMODE == 'paired':
-    MODE = [
-        expand(OUTDIR + "qualtrim/{sample}.R1.fastq", sample = SAMPLES),
-        expand(OUTDIR + "qualtrim/{sample}.R2.fastq", sample = SAMPLES)
-    ]
-if RUNMODE == 'single':
-    MODE = [
-        expand(OUTDIR + "qualtrim/{sample}.fastq", sample = SAMPLES)
-    ]
+elif PLATFORM == 'pgm':
+    SAMPLE_NAME = glob_wildcards(INDIR / config['pattern_pgm'])[0]
+    SAMPLES = SAMPLE_NAME
+    RUNMODE = 'single'
 
 ##### org setup #####
 if ORG == 'FLU':
@@ -61,7 +54,7 @@ if ORG == 'FLU':
             )
     
     # trim org settings just for flu
-    TRIM = config["trim_org"]
+    #TRIM = config["trim_org"]
 
     # gene segment settings
     if SUBSET is True:
@@ -72,7 +65,7 @@ if ORG == 'FLU':
         sys.exit("Check config file for 'subset' param. If unsure set to: False")
 
 elif ORG == 'RSV':
-    TRIM = ""
+    #TRIM = ""
     SEGTOKEEP = "rsv"
     if PLATFORM == 'illumina': 
         if SECONDARY is True:
@@ -88,7 +81,6 @@ elif ORG == 'RSV':
             f'secondary_assembly {SECONDARY}\n'
             f'techology {PLATFORM}'
             )
-
 else:
     raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
 
@@ -106,24 +98,27 @@ onsuccess:
 
 onerror:
     print("\n")
-    print("\033[1m\033[96m Error detected. READ THE ERROR, check output folder first\033[0m")
+    print("\033[1m\033[96m Error detected. PLEASE READ THE ERROR then check output folder first\033[0m")
 
 ##### Target rules #####
 rule all:
     input:
-        # singe or paired
-        MODE,
-        # status
-        expand(OUTDIR + "status/filter_{sample}.txt", sample = SAMPLES),
-        expand(OUTDIR + "status/irma_{sample}.txt", sample = SAMPLES),
-        join(OUTDIR + "status/subtyping_complete.txt"),
-        join(OUTDIR + "status/plotting_complete.txt")
+        #expand(OUTDIR / "status/filter_{sample}.txt", sample = SAMPLES),
+        expand(OUTDIR / "status" / "trim_{sample}.txt", sample = SAMPLES),
+        expand(OUTDIR / "status/irma_{sample}.txt", sample = SAMPLES),
+        OUTDIR / "status/subtyping_complete.txt",
+        OUTDIR / "status/plotting_complete.txt",
 
 ##### Modules #####
 #include: "rules/ref.smk"
 if RUNMODE == 'single':
-    include: "rules/single.smk"
+    include: "rules/trim_se.smk"
+    include: "rules/irma_se.smk"
 if RUNMODE == 'paired':
-    include: "rules/paired.smk"
+    if TRIMMODE == "standard":
+        include: "rules/trim_pe.smk"
+    if TRIMMODE == "tiled":
+        include: "rules/trim_tiled.smk"
+    include: "rules/irma_pe.smk"
 
 include: "rules/report.smk"

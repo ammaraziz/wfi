@@ -1,0 +1,14 @@
+#         fwdprimer                                              revprimer
+#     ++++++++++++++++++=====================================++++++++++++++++++
+#     |                 |                                   |                 |
+#  ampstart        insertstart                          insertend           ampend
+#
+# NOTE: At least 3 column should be given! The 4-th column(optional) indicate auxiliary infomation
+#FowrdPrim  ReversePrim InserLength AuxInfo
+ACGCGAAAAAATGCGTACTACAAAC	GRCCTATDCCTGCATACTC	512	RSVS1_01F-RSV_Seg3_11165R
+GCTATGGCAAGACTYAGGAATG	CGTGTAGCTGTRTGYTTCCAA	512	RSV_F4_F2925-RSVS1_4017R
+TGATGCATCAATATCTCAAGTCA	AGTGTCAAAAACTAATRTCTCGT	512	RSV_Seg3_7215F-RSV_Seg4_15333R
+ATGGGAGARGTRGCTCCAGAATA	CTGMACCATAGGCATTCATAAACA	512	RSV_F3_F1563-RSV_F5_R6247.6 
+AGCAAATTYTGGCCYTAYTTTAC	TTGAGRTCTAACACTTTGCTGGT	512	RSV_F5_F4336.4-RSV_F6-new-B-R7916
+TGGACCATWGAAGCYATATCA	CTCATAGCAACACATGCTGATTG	512	RSV_Seg4_10959F-RSV_F6-new-B-R7916
+TGGACCATWGAAGCYATATCA	GAGTTTGCTCATGGCAACACAT	512	RSV_Seg4_10959F-RSV_F6-new-A-R7911.1
