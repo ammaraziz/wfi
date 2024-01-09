@@ -1,5 +1,4 @@
-##### Messesges #####
-sample_sheet: config/samples.csv
+sample_sheet: config/samples.test.csv
 output_dir: /Users/aaziz/repos/wfi/tests/output/
 adapters: resources/adapters/
 use_conda: true

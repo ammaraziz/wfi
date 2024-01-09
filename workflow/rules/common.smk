@@ -1,7 +1,3 @@
-'''
-From the amazing https://github.com/gbouras13/hybracter
-'''
-
 import sys
 import os
 import pandas as pd
@@ -22,6 +18,7 @@ def samplesFromCsv(csvFile):
         2 = runtype
         2 = R1 Short
         3 = R2 Short
+    From the amazing https://github.com/gbouras13/hybracter
     """
     outDict = {}
     with open(csvFile, "r") as csv:
@@ -63,6 +60,9 @@ def samplesFromCsv(csvFile):
 
 
 def parseSamples(csvfile):
+    """
+    From the amazing https://github.com/gbouras13/hybracter
+    """
     if os.path.isfile(csvfile):
         sampleDict = samplesFromCsv(csvfile)
     else:

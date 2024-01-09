@@ -1,3 +1,7 @@
+"""
+from Bactopia!
+"""
+
 import logging
 import re
 import sys
