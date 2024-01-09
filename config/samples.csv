@@ -1,0 +1,2 @@
+#sampleid,runtype,forward,reverse
+RSV321,paired-end,/Users/aaziz/repos/wfi/tests/iseq/RSV321_S1_L001_R1_001.fastq.gz,/Users/aaziz/repos/wfi/tests/iseq/RSV321_S1_L001_R2_001.fastq.gz

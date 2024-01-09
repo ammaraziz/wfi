@@ -1,5 +1,6 @@
 ##### Messesges #####
 input_dir: /Users/aaziz/repos/wfi/tests/
+sample_sheet: config/samples.csv
 output_dir: /Users/aaziz/repos/wfi/tests/output/
 adapters: resources/adapters/
 use_conda: true
@@ -19,7 +20,7 @@ technology: illumina
 # [standard, tiled]
 # Trimming mode
 # standard uses cutadapt
-trim_prog: tiled
+trim_prog: standard
 
 # Masking
 # set to 0 to disable masking
@@ -38,3 +39,8 @@ pattern_illumina : /{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fast
 pattern_ont : /{sample_name}.fastq.gz
 pattern_pgm : /{sample_name}.fastq.gz
 
+threads:
+  fastp: 2
+  ptrimmer: 1
+  irma: 10
+  nextclade: 10

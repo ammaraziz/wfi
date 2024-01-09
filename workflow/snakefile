@@ -14,16 +14,19 @@ ADAPTERS = config['adapters']
 SUBSET = config["subset"]
 MASKDEPTH = config['maskdepth']
 TRIMMODE = config["trim_prog"]
+SAMPLESHEET = config["sample_sheet"]
 
 if 'use_conda' in config and config['use_conda']:
     workflow._use_conda = True
 
 ##### setup samples #####
 if PLATFORM == 'illumina':
-    SAMPLE_NAME, SAMPLE_NUMBER, _, PAIR = glob_wildcards(INDIR / "{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
-    SAMPLES = [i + "_" + x for i, x in zip(set(SAMPLE_NAME), SAMPLE_NUMBER)]
+    #SAMPLE_NAME, SAMPLE_NUMBER, _, PAIR = glob_wildcards(INDIR / "{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz")
+    #SAMPLES = [i + "_" + x for i, x in zip(set(SAMPLE_NAME), SAMPLE_NUMBER)]
     RUNMODE = 'paired'
-    
+    dictReads = parseSamples(SAMPLESHEET)
+    SAMPLES = list(dictReads.keys())
+
 elif PLATFORM == 'ont':
     SAMPLE_NAME = glob_wildcards(INDIR / config['pattern_ont'])[0]
     SAMPLES = SAMPLE_NAME
@@ -104,7 +107,7 @@ onerror:
 rule all:
     input:
         #expand(OUTDIR / "status/filter_{sample}.txt", sample = SAMPLES),
-        expand(OUTDIR / "status" / "trim_{sample}.txt", sample = SAMPLES),
+        expand(OUTDIR / "status" / "fastp_{sample}.txt", sample = SAMPLES),
         expand(OUTDIR / "status/irma_{sample}.txt", sample = SAMPLES),
         OUTDIR / "status/subtyping_complete.txt",
         OUTDIR / "status/plotting_complete.txt",

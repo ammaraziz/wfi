@@ -27,8 +27,10 @@
 rule trim:
     message: "Filtering and trimming {wildcards.sample} reads."
     input:
-        r1 = INDIR / "{sample}_L001_R1_001.fastq.gz",
-        r2 = INDIR / "{sample}_L001_R2_001.fastq.gz",
+        # r1 = INDIR / "{sample}_L001_R1_001.fastq.gz",
+        # r2 = INDIR / "{sample}_L001_R2_001.fastq.gz",
+        r1 = get_input_r1,
+        r2 = get_input_r2,
     output:
         r1 = OUTDIR / "qualtrimp" / "{sample}.R1.fastq.gz",
         r2 = OUTDIR / "qualtrimp" / "{sample}.R2.fastq.gz",
