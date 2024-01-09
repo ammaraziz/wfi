@@ -1,12 +1,14 @@
 ##### Messesges #####
-input_dir: /Users/aaziz/repos/wfi/tests/
 sample_sheet: config/samples.csv
 output_dir: /Users/aaziz/repos/wfi/tests/output/
 adapters: resources/adapters/
 use_conda: true
 
+# deprecated 
+input_dir: /Users/aaziz/repos/wfi/tests/
+
 # Organism
-# [FLU, RSV, CoV, EBOLA, FLU_AD]
+# Currently supported: [FLU, RSV]
 organism: RSV
 
 # Secondary assembly
@@ -17,10 +19,14 @@ secondary_assembly: False
 # [illumina, ont, pgm]
 technology: illumina
 
-# [standard, tiled]
 # Trimming mode
-# standard uses cutadapt
+# [standard, tiled]
 trim_prog: standard
+
+# snakemake file pattern
+# required patterns are {sample_name} {sample_number}
+pattern_ont : /{sample_name}.fastq.gz
+pattern_pgm : /{sample_name}.fastq.gz
 
 # Masking
 # set to 0 to disable masking
@@ -32,15 +38,9 @@ maskdepth: 20
 # False = all genes
 subset: False
 
-# experimental - do not touch
-# snakemake file pattern
-# required patterns = {sample_name} and {sample_number}
-pattern_illumina : /{sample_name}_{sample_number}_L{lane_number}_{pair}_001.fastq.gz
-pattern_ont : /{sample_name}.fastq.gz
-pattern_pgm : /{sample_name}.fastq.gz
-
 threads:
   fastp: 2
   ptrimmer: 1
   irma: 10
   nextclade: 10
+  ragtag: 2

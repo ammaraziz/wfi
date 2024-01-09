@@ -55,7 +55,7 @@ def samplesFromCsv(csvFile):
                 sys.stderr.write(
                     "\n"
                     f"    FATAL: Error parsing {csvFile}. Line {l} \n"
-                    f"    does not have 3 columns. \n"
+                    f"    does not have 4 columns. \n"
                     f"    Please check the formatting of {csvFile}. \n"
                 )
                 sys.exit(1)
@@ -130,7 +130,7 @@ def make_bed_for_masking(a2m: str, min_cov:int=20) -> None:
     # find positions which are below cutoff
     dat = dat[dat['Alignment_State'].isin (['D', 'M'])]
 
-    b = list(dat['Coverage Depth'] < 20)
+    b = list(dat['Coverage Depth'] < min_cov)
     s = pd.Series(b)
     grp = s.eq(False).cumsum()
     arr = grp.loc[s.eq(True)] \
@@ -140,3 +140,30 @@ def make_bed_for_masking(a2m: str, min_cov:int=20) -> None:
     return(arr)
 
 #make_bed_for_masking("/Users/aaziz/repos/wfi/tests/outputirma/RSV321_S1/tables/rsv_a2-coverage.a2m.txt")
+
+def get_irma_module_config(org: str, technology: str, secondary: bool = False) -> str:
+    """
+    Return correct irma module for the organism/technology
+    """
+    org = org.lower()
+    technology = technology.lower()
+
+    if org == "rsv" and bool is False:
+        raise KeyError("IRMA RSV module does not support secondary assembly")
+
+    modules = {
+        "flu" : {
+            "illumina" : "FLU",
+            "nanopore" : "FLU-minion",
+            "pgm" : "FLU-pgm"
+            },
+        "rsv" : {
+            "illumina" : "RSV",
+            "nanopore" : "RSV-minion",
+        },
+    }
+    if secondary:
+        m = modules[org][technology] + "-secondary"
+    else:
+        m = modules[org][technology]
+    return(m)

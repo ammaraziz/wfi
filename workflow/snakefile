@@ -39,26 +39,22 @@ elif PLATFORM == 'pgm':
 
 ##### org setup #####
 if ORG == 'FLU':
-    if PLATFORM == 'illumina':
-        if SECONDARY is True:
-            IRMAMODULE = 'FLU-secondary'
-        else:
-            IRMAMODULE = 'FLU'
-    elif PLATFORM == 'ont' and SECONDARY == False:
-        IRMAMODULE = 'FLU-minion'
-    elif PLATFORM == 'pgm' and SECONDARY == False:
-        IRMAMODULE = 'FLU-pgm'
-    else:
-        sys.exit(
-            f'Assembly module unknown. Check config for options:\n'
-            f'organism {ORG}\n' 
-            f'secondary_assembly {SECONDARY}\n'
-            f'techology {PLATFORM}'
-            )
-    
-    # trim org settings just for flu
-    #TRIM = config["trim_org"]
-
+#     if PLATFORM == 'illumina':
+#         if SECONDARY is True:
+#             IRMAMODULE = 'FLU-secondary'
+#         else:
+#             IRMAMODULE = 'FLU'
+#     elif PLATFORM == 'ont' and SECONDARY == False:
+#         IRMAMODULE = 'FLU-minion'
+#     elif PLATFORM == 'pgm' and SECONDARY == False:
+#         IRMAMODULE = 'FLU-pgm'
+#     else:
+#         sys.exit(
+#             f'Settings not possible. IRMA module does not fit critera. Check config for options:\n'
+#             f'organism {ORG}\n' 
+#             f'secondary_assembly {SECONDARY}\n'
+#             f'techology {PLATFORM}'
+#             )
     # gene segment settings
     if SUBSET is True:
         SEGTOKEEP = "subset"
@@ -68,24 +64,36 @@ if ORG == 'FLU':
         sys.exit("Check config file for 'subset' param. If unsure set to: False")
 
 elif ORG == 'RSV':
-    #TRIM = ""
+    # #TRIM = ""
     SEGTOKEEP = "rsv"
-    if PLATFORM == 'illumina': 
-        if SECONDARY is True:
-            IRMAMODULE = 'RSV-secondary'
-        else:
-            IRMAMODULE = 'RSV'
-    elif PLATFORM and SECONDARY is False:
-        IRMAMODULE = 'RSV-minion'
-    else:
-        sys.exit(
-            f'Assembly module unknown. Check config for options:\n'
-            f'organism {ORG}\n' 
-            f'secondary_assembly {SECONDARY}\n'
-            f'techology {PLATFORM}'
-            )
+    # if PLATFORM == 'illumina': 
+    #     if SECONDARY is True:
+    #         IRMAMODULE = 'RSV-secondary'
+    #     else:
+    #         IRMAMODULE = 'RSV'
+    # elif PLATFORM and SECONDARY is False:
+    #     IRMAMODULE = 'RSV-minion'
+    # else:
+        # sys.exit(
+        #     f'Assembly module unknown. Check config for options:\n'
+        #     f'organism {ORG}\n' 
+        #     f'secondary_assembly {SECONDARY}\n'
+        #     f'techology {PLATFORM}'
+        #     )
 else:
     raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
+
+try:
+    IRMAMODULE = get_irma_module_config(org = ORG, technology = PLATFORM, secondary = SECONDARY)
+except Exception as e:
+    print(
+        f'Settings not possible. IRMA module does not fit critera. Check config for options:\n'
+        f'\torganism {ORG}\n' 
+        f'\tsecondary_assembly {SECONDARY}\n'
+        f'\ttechology {PLATFORM}\n'
+        f'\t{e}'
+        )
+    sys.exit(1)
 
 ##### Messesges #####
 onstart:
@@ -106,7 +114,6 @@ onerror:
 ##### Target rules #####
 rule all:
     input:
-        #expand(OUTDIR / "status/filter_{sample}.txt", sample = SAMPLES),
         expand(OUTDIR / "status" / "fastp_{sample}.txt", sample = SAMPLES),
         expand(OUTDIR / "status/irma_{sample}.txt", sample = SAMPLES),
         OUTDIR / "status/subtyping_complete.txt",

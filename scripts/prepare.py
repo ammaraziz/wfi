@@ -331,9 +331,9 @@ def prepare(
             )
 
     if FOFN:
-        print("sample\truntype\tr1\tr2")
+        print("#sample,runtype,r1,r2")
         for line in FOFN:
-            print("\t".join(line))
+            print(",".join(line))
     else:
         logging.error(
             f"Unable to find any samples in {path}. Please try adjusting the following parameters to fit your needs."
