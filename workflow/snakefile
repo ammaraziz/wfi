@@ -115,7 +115,8 @@ onerror:
 rule all:
     input:
         expand(OUTDIR / "status" / "fastp_{sample}.txt", sample = SAMPLES),
-        expand(OUTDIR / "status/irma_{sample}.txt", sample = SAMPLES),
+        expand(OUTDIR / "status" / "irma_{sample}.txt", sample = SAMPLES),
+        expand(OUTDIR / "status" / "mask_{sample}.txt", sample = SAMPLES),
         OUTDIR / "status/subtyping_complete.txt",
         OUTDIR / "status/plotting_complete.txt",
 
@@ -130,5 +131,5 @@ if RUNMODE == 'paired':
     if TRIMMODE == "tiled":
         include: "rules/trim_tiled.smk"
     include: "rules/irma_pe.smk"
-
+include: "rules/mask.smk"
 include: "rules/report.smk"
