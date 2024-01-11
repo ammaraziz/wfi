@@ -1,14 +1,14 @@
+'''
+Common.smk
+'''
+
 import sys
 import os
-import pandas as pd
 from  pathlib import Path
 from collections import defaultdict
 
-def get_input_r1(wildcards):
-    return dictReads[wildcards.sample]["R1"]
+import pandas as pd
 
-def get_input_r2(wildcards):
-    return dictReads[wildcards.sample]["R2"]
 
 def samplesFromCsv(csvFile):
     """
@@ -21,7 +21,7 @@ def samplesFromCsv(csvFile):
     From the amazing https://github.com/gbouras13/hybracter
     """
     outDict = {}
-    with open(csvFile, "r") as csv:
+    with open(csvFile, "r", encoding="utf-8") as csv:
         for line in csv:
             l = line.strip().split(",")
             if l[0].startswith("#"):
@@ -29,7 +29,8 @@ def samplesFromCsv(csvFile):
             if len(l) == 4:
                 outDict[l[0]] = {}
                 if (
-                    type(l[1]) is str
+                    #type(l[1]) is str
+                    isinstance(l[1], str)
                     and os.path.isfile(l[2])
                     and os.path.isfile(l[3])
                 ):
@@ -99,17 +100,17 @@ def get_input_r2(wildcards):
 def get_input_lr_fastqs(wildcards):
     return dictReads[wildcards.sample]["LR"]
 
-def getIRMAFiles(irma_output: str) -> dict[str]:
+def get_irma_files(irma_output: str) -> dict:
     '''
     Get IRMA output files of interest
     returns dict with absolute path
 
-    *coverage.a2m.txt
+    *.coverage.a2m.txt
     *.vcf
     *.bam
     READ_COUNTS.txt
     '''
-    d = defaultdict(str)
+    d = defaultdict()
     p = Path(irma_output)
 
     d['vcf'] = [str(x) for x in p.glob("*.vcf")]
@@ -117,29 +118,58 @@ def getIRMAFiles(irma_output: str) -> dict[str]:
     d['bam'] = [str(x) for x in p.glob("*.bam")]
     d['counts'] = str(p/"tables"/"READ_COUNTS.txt") if (p/"tables"/"READ_COUNTS.txt").exists() else []
 
-    return(d)
+    return d
 
-def make_bed_for_masking(a2m: str, min_cov:int=20) -> None:
+def make_bed_for_masking(infile: str,
+                         chromCol: int,
+                         depthCol: int,
+                         outfile: str,
+                         sep: str="\t",
+                         min_cov:int=20) -> None:
     '''
-    Given *coverage.a2m.txt input, create bed file with low coverage
+    Create bed file from tsv file containing depths.
+    
+    chromCol:   pos of chromosome column.
+    depthCol:   pos of column with coverage values.
+    all are 0-based positions.
+
+    irma settings:
+    *-coverage.a2m.txt
+    chromCol = 0
+    depthCol = 6
+
+    samtools settings:
+    samtools depth -aa sample.sorted.bam > depth.txt
+    chromCol = 0
+    depthCol = 2
     '''
+
     try:
-        dat = pd.read_csv(a2m, sep='\t')
-    except Exception as e:
-        print(f"Error reading a2m file while trying to create bed file\n {e}")
-    # find positions which are below cutoff
+        dat = pd.read_csv(infile, sep=sep)
+    except OSError as e:
+        print(f"Error reading infile file while trying to create bed file\n {e}")
+        sys.exit(1)
+    chrom = dat.iloc[:, chromCol][0]
+
+    # irma specific 
     dat = dat[dat['Alignment_State'].isin (['D', 'M'])]
 
-    b = list(dat['Coverage Depth'] < min_cov)
-    s = pd.Series(b)
+    s = pd.Series(dat.iloc[:, depthCol] < min_cov)
     grp = s.eq(False).cumsum()
     arr = grp.loc[s.eq(True)] \
             .groupby(grp) \
             .apply(lambda x: [x.index.min(), x.index.max()])
-    print(arr)
-    return(arr)
 
-#make_bed_for_masking("/Users/aaziz/repos/wfi/tests/outputirma/RSV321_S1/tables/rsv_a2-coverage.a2m.txt")
+    with open(outfile, "w", encoding="utf-8") as f:
+        for l in list(arr):
+            f.write(f"{str(chrom)}\t{l[0]}\t{l[1]}\n")
+
+    return arr
+
+# make_bed_for_masking("/Users/aaziz/repos/wfi/tests/output/irma/RSV321_S1_L001/tables/rsv_a2-coverage.a2m.txt", 
+# chromCol=0,
+# depthCol=6,
+# outfile="/Users/aaziz/repos/wfi/tests/output/irma/mask.bed")
 
 def get_irma_module_config(org: str, technology: str, secondary: bool = False) -> str:
     """
@@ -166,4 +196,4 @@ def get_irma_module_config(org: str, technology: str, secondary: bool = False) -
         m = modules[org][technology] + "-secondary"
     else:
         m = modules[org][technology]
-    return(m)
+    return m

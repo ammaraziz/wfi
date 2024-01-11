@@ -26,7 +26,7 @@ rule trim:
     input:
         single = INDIR / "{sample}.fastq.gz",
     output:
-        filtered = OUTDIR / "qualtrim/{sample}.fastq.gz",
+        filtered = OUTDIR / "qualtrim" / "{sample}.fastq.gz",
         html = OUTDIR / "qualtrimp" / "{sample}.html",
         json = OUTDIR / "qualtrimp" / "{sample}.json",
         status = OUTDIR / "status" / "filter_trim{sample}.txt",

@@ -3,3 +3,4 @@
 Rplots.pdf
 tests/output/*
 config/samples.test.csv
+.vscode/*
