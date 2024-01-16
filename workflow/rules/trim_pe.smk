@@ -1,29 +1,3 @@
-# rule filter:
-#     input:
-#         r1 = INDIR / "{sample}_L001_R1_001.fastq.gz",
-#         r2 = INDIR / "{sample}_L001_R2_001.fastq.gz"
-#     output:
-#         r1 = OUTDIR / "qualtrim/{sample}.R1.fastq",
-#         r2 = OUTDIR / "qualtrim/{sample}.R2.fastq",
-#         status = OUTDIR / "status/filter_{sample}.txt"
-#     params:
-#         Fadapter = f"{ADAPTERS}/{ORG}_left.fa",
-#         Radapter = f"{ADAPTERS}/{ORG}_right.fa"
-#     threads: 2
-#     message: "Filtering and trimming {wildcards.sample} reads."
-#     log: OUTDIR / "logs/trim_{sample}.txt"
-#     shell:"""
-#     cutadapt {input.r1} {input.r2} \
-#     -j {threads} \
-#     -g file:{params.Fadapter} \
-#     -A file:{params.Radapter} \
-#     -o {output.r1} \
-#     -p {output.r2} \
-#     --report full &> {log}
-
-#     touch {output.status}
-#     """
-
 rule trim:
     message: "Filtering and trimming {wildcards.sample} reads."
     input:

@@ -19,12 +19,13 @@ rule makeBedForMasking:
 
 # rule maskFasta:
 #     input:
-#         fasta = "",
 #         bed = rules.makeBedForMasking.output.bed
 #     output:
 #         maskedfasta = OUTDIR / "mask" / "{sample}" / "{sample}.masked.fasta"
 #     threads: 1
 #     conda: ""
+#     params:
+#         IRMA = OUTDIR
 #     shell:"""
 #     bedtools maskfasta \
 #     fi {input.fasta} \

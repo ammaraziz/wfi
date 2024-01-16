@@ -1,26 +1,3 @@
-# rule filter:
-#     input:
-#         single = INDIR / "{sample}.fastq.gz",
-#     output:
-#         filtered = OUTDIR / "qualtrim/{sample}.fastq",
-#         status = OUTDIR / "status/filter_{sample}.txt"
-#     params:
-#         Fadapter = f"{ADAPTERS}/{ORG}_left.fa",
-#         Radapter = f"{ADAPTERS}/{ORG}_right.fa"
-#     threads: 2
-#     message: "Trimming {wildcards.sample} reads."
-#     log: OUTDIR / "logs/trim_{sample}.txt"
-#     shell:"""
-#         cutadapt {input.single}\
-#         -j {threads} \
-#         -g file:{params.Fadapter} \
-#         -a file:{params.Radapter} \
-#         -o {output.filtered} \
-#         --report full &> {log}
-
-#         touch {output.status}
-#     """
-
 rule trim:
     message: "Running fastp on {wildcards.sample}"
     input:

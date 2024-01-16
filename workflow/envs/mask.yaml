@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - bioconda
+  - anaconda
+dependencies:
+    - covtobed
+    - csvtk
+    - python=3.9
+    - pip:
+      - pandas
+      - typer

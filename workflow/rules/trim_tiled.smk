@@ -37,5 +37,6 @@ rule trim:
 
     rm {params.r1tmp}
     rm {params.r2tmp}
+    
     touch {output.status}
     """

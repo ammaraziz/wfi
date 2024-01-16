@@ -39,23 +39,6 @@ elif PLATFORM == 'pgm':
 
 ##### org setup #####
 if ORG == 'FLU':
-#     if PLATFORM == 'illumina':
-#         if SECONDARY is True:
-#             IRMAMODULE = 'FLU-secondary'
-#         else:
-#             IRMAMODULE = 'FLU'
-#     elif PLATFORM == 'ont' and SECONDARY == False:
-#         IRMAMODULE = 'FLU-minion'
-#     elif PLATFORM == 'pgm' and SECONDARY == False:
-#         IRMAMODULE = 'FLU-pgm'
-#     else:
-#         sys.exit(
-#             f'Settings not possible. IRMA module does not fit critera. Check config for options:\n'
-#             f'organism {ORG}\n' 
-#             f'secondary_assembly {SECONDARY}\n'
-#             f'techology {PLATFORM}'
-#             )
-    # gene segment settings
     if SUBSET is True:
         SEGTOKEEP = "subset"
     elif SUBSET is False:
@@ -64,22 +47,7 @@ if ORG == 'FLU':
         sys.exit("Check config file for 'subset' param. If unsure set to: False")
 
 elif ORG == 'RSV':
-    # #TRIM = ""
     SEGTOKEEP = "rsv"
-    # if PLATFORM == 'illumina': 
-    #     if SECONDARY is True:
-    #         IRMAMODULE = 'RSV-secondary'
-    #     else:
-    #         IRMAMODULE = 'RSV'
-    # elif PLATFORM and SECONDARY is False:
-    #     IRMAMODULE = 'RSV-minion'
-    # else:
-        # sys.exit(
-        #     f'Assembly module unknown. Check config for options:\n'
-        #     f'organism {ORG}\n' 
-        #     f'secondary_assembly {SECONDARY}\n'
-        #     f'techology {PLATFORM}'
-        #     )
 else:
     raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
 
