@@ -6,9 +6,10 @@ import subprocess
 from pathlib import Path
 from collections import defaultdict
 
-import pandas as pd
 import typer
 import toyplot
+import pandas as pd
+import numpy as np
 from toyplot import svg, pdf, png, html
 
 
@@ -202,11 +203,11 @@ def plot(
     ),
     outfile: str = typer.Option(..., "-o", "--output-dir", help="Output file"),
     encoding: str = typer.Option(
-        "html", "-e", "--encoding", help="File encoding: svg, pdf, png, html"
+        "svg", "-e", "--encoding", help="File encoding: svg, pdf, png, html"
     ),
 ):
     """
-    !Not Implemented! Plot depth histograph annotated
+    Plot depth histograph annotated with potential ambiguous bases
     """
 
     a2m_df = pd.read_csv(
@@ -252,7 +253,7 @@ def plot(
     })
     vcf = pd.merge(vcf, a2m_df, how="left", on=['Position'])
 
-    canvas = toyplot.Canvas(width=600, height=800)
+    canvas = toyplot.Canvas(width=600, height=400)
     axes = canvas.cartesian(
         label=f"{sample_name} {extra or ''}",
         xlabel="HMM Position",
@@ -260,10 +261,15 @@ def plot(
     )
 
     covmax = max(a2m_df['Coverage Depth'])
-
+    # toyplot
     mark = axes.fill(a2m_df['HMM_Position'], a2m_df['Coverage Depth'])
-    line = axes.vlines(vcf['HMM_Position'])
+    axes.x.ticks.locator = toyplot.locator.Explicit(np.arange(0, 16000, 1000).tolist()) # type: ignore
+    axes.x.ticks.show = True
+    axes.y.ticks.show = True
     label_style = {"text-anchor":"start", "-toyplot-anchor-shift":"2.5px"}
+
+    # add vertical lines with labels
+    line = axes.vlines(vcf['HMM_Position'])
     for _, row in vcf.iterrows():
         axes.text(
             row['HMM_Position'],
@@ -318,8 +324,8 @@ def mutations(
 
     try:
         allele_df = pd.read_csv(
-            alleles, 
-            sep="\t", 
+            alleles,
+            sep="\t",
             dtype={
                 "Reference_Name":"str",
                 "Position":"float",
