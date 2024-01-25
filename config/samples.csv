@@ -1,3 +1,0 @@
-#use scripts/prepare.py to generate this file
-#sample,runtype,r1,r2
-RSV321_S1,paired-end,/Path/To/R1.fastq.gz,/Path/To/R2/fastq.gz

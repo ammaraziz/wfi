@@ -36,3 +36,43 @@ rule SummaryReport:
 
     touch {output.loc}
     """
+
+rule stats:
+    input:
+        json = rules.mask_fasta.output.json,
+    output: 
+        json = WORKDIR / "irma" / "{sample}" / "json" / "{sample}.stats.json",
+        status = WORKDIR / "status" / "stats_{sample}.txt",
+    threads: 1
+    conda: "../envs/irmakit.yaml"
+    shell:"""
+    python scripts/irmakit.py stats \
+    --json {input.json} \
+    --json-out {output.json}
+
+    touch {output.status}
+    """
+
+rule plot:
+    input:
+        json = rules.stats.output.json,
+        status = WORKDIR / "status" / "mask_{sample}.txt"
+    output:
+        html = WORKDIR / "irma" / "{sample}" / "{sample}.report.html",
+        json = WORKDIR / "irma" / "{sample}" / "json" / "{sample}.plot.json",
+        status = WORKDIR / "status" / "plot_{sample}.txt",
+    params:
+        sample_name = lambda wildcards: wildcards.sample,
+        encoding = config['encoding']
+    threads: 1
+    conda: "../envs/irmakit.yaml"
+    shell:"""
+    python scripts/irmakit.py plot \
+    --json {input.json} \
+    --sample-name {params.sample_name} \
+    --output-file {output.html} \
+    --encoding {params.encoding} \
+    --json-out {output.json}
+    
+    touch {output.status}
+    """

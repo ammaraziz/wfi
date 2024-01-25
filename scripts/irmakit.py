@@ -6,6 +6,7 @@ import subprocess
 from math import ceil
 from pathlib import Path
 from collections import defaultdict
+import random
 
 import typer
 from rich import print
@@ -13,7 +14,6 @@ import toyplot
 import pandas as pd
 import numpy as np
 from toyplot import svg, pdf, png, html
-
 
 app = typer.Typer(
     help="irmakit - helper functions for parsing irma output",
@@ -27,7 +27,7 @@ app = typer.Typer(
 @app.command(no_args_is_help=True)
 def parse(
     irmadir: Path = typer.Option(
-        ..., "-i", "--irma-directory", help="IRMA output directory to parse"
+        ..., "-i", "--irma-dir", help="IRMA output directory to parse"
     ),
     jsonout: Path = typer.Option(..., "-j", "--json", help="json output path and name"),
     samplename: str = typer.Option(
@@ -83,6 +83,9 @@ def parse(
             else []
         )
 
+        d["masked"] = {}
+        d["depth_plots"] = {}
+        d["statistics"] = {}
         # status represents the success or fail  or an irma run
         # at minimum a bam, fasta, vcf output is required
         if d["bam"] and d["fasta"] and d["vcf"]:
@@ -99,13 +102,18 @@ def parse(
         json.dump(parsed, file, ensure_ascii=False, indent=4)
 
 
-@app.command(no_args_is_help=True)
+@app.command(
+        no_args_is_help=True,
+        epilog="[yellow]Note: json file is ammended in place to include new giles generated.[/yellow]")
 def maskfasta(
     json_file: Path = typer.Option(
         ..., "-j", "--json", help="irmakit.py parse output"
     ),
     sample_name: str = typer.Option(
         ..., "-s", "--sample-name", help="Sample name, used to output"
+    ),
+    json_out: Path = typer.Option(
+        ..., "--json-out", help="Amended json file output"
     ),
     outdir: Path = typer.Option(..., "-o", "--output-dir", help="Output directory"),
     chromCol: int = typer.Option(
@@ -129,21 +137,18 @@ def maskfasta(
     Mask low coverage region using `bedtools maskfasta`
 
     irma settings: chromCol = 0 depthCol = 6
-
-    samtools settings: % samtools depth -aa sample.sorted.bam > input.txt
-    chromCol = 0 depthCol = 2
     """
 
     outdir.mkdir(exist_ok=True, parents=True)
 
     # read in depth file
     try:
-        with open(json_file) as handle:
+        with open(json_file, "r", encoding="utf-8") as handle:
             irma_data = json.loads(handle.read())
             a2m_cov = irma_data[sample_name]['coverage']
             a2m_fasta = irma_data[sample_name]['a2m']
     except Exception as e:
-        raise typer.BadParameter(f"Could not read json input. \n {e}")
+        raise typer.BadParameter(f"Could not read json input.\n{e}")
 
     # ensure the same number of keys (files) are in both dicts
     if not len(a2m_cov.keys()) == len(a2m_fasta.keys()):
@@ -186,11 +191,16 @@ def maskfasta(
             check=True,
         )
 
+        # ammend json
+        irma_data[sample_name]['masked'].update({fname : {"bed" : str(bed_out), "masked_fasta" : str(masked_fasta)}})
+
+        with open(json_out, "w", encoding="utf-8") as handle:
+            json.dump(irma_data, handle, ensure_ascii=False, indent=4)
+
         if not masked_fasta.exists():
             raise typer.BadParameter("Error - no output was detected. Check inputs.")
 
-    print(f"[green]Masking complete - Outputs: \n - {masked_fasta}\n - {bed_out}[/green]")
-
+    print(f"[green]Masking complete: {str(masked_fasta.resolve().parent)}[/green]") # type: ignore
 
 @app.command(no_args_is_help=True)
 def plot(
@@ -200,25 +210,34 @@ def plot(
     sample_name: str = typer.Option(
         ..., "-s", "--sample-name", help="Sample name, used to output"
     ),
-    outfile: str = typer.Option(..., "-o", "--output-file", help="Output file"),
+    outfile: Path = typer.Option(..., "-o", "--output-file", help="Output file"),
+    json_out: Path = typer.Option(
+        ..., "--json-out", help="Amended json file output"
+    ),
     extra: str = typer.Option(
         None, "--extra", help="Extra information to include in the title"
     ),
     encoding: str = typer.Option(
-        "svg", "-e", "--encoding", help="File encoding: svg, pdf, png, html"
+        "html", "-e", "--encoding", help="File encoding: svg, pdf, png, html"
     ),
 ):
     """
     Plot depth histograph annotated with potential ambiguous bases
     """
 
-    with open(json_file) as handle:
+    if encoding not in ['svg', 'pdf', 'png', 'html']:
+        raise typer.BadParameter(f"Encoding {encoding} not supported. Possible values: svg, pdf, png, html")
+
+    with open(json_file, "r", encoding="utf-8") as handle:
         irma_data = json.loads(handle.read())
         a2m_cov = irma_data[sample_name]['coverage']
         vcf_file = irma_data[sample_name]['vcf']
+        masked = irma_data[sample_name]['masked']
 
     datasets = defaultdict(dict)
     for fname in a2m_cov.keys():
+
+        # it's assumed for each assembled gene/organism an coverage-a2m file is created
         a2m_df = pd.read_csv(
             a2m_cov[fname],
             sep="\t",
@@ -245,6 +264,7 @@ def plot(
                 'Alignment_State'
                 ]
             ]
+        # vcf files
         vcf = pd.read_csv(
             vcf_file[fname],
             sep="\t",
@@ -259,53 +279,85 @@ def plot(
             "FILTER" : "Filter",
             "INFO" : "Info"
         })
-
         vcf = pd.merge(vcf, a2m_df, how="left", on=['Position'])
+
+        bed = pd.read_csv(masked[fname]['bed'], sep="\t",
+                           names=["chrom", "start", "end"])
+
+        ### compute data for plotting
+        misc_size = -10
+        genome_size = a2m_df.shape[0]
+        # gap column plotting
+        a2m_df['Gaps'] = np.where(a2m_df['Alignment_State'] != 'D', 0,
+                                np.where(a2m_df['Alignment_State'] == 'D', misc_size, 0))
+        # masked positions
+        np_masked_region = np.zeros(genome_size)
+        for index, row in bed.iterrows():
+            np_masked_region[row['start'] : row['end']] = misc_size
+        a2m_df['Masked Regions'] = np_masked_region
+
+        # output data for plotting
         datasets[fname] = {
             "vcf" : vcf,
             "a2m_df" : a2m_df,
             "covmax" : max(a2m_df['Coverage Depth']),
-            "genomesize" : ceil(a2m_df.shape[0] / 1000) * 1000, # round UP to the nearest 1000
+            "genomesize_upper" : ceil(genome_size / 1000) * 1000, # round UP to the nearest 1000
             "interval" : round(a2m_df.shape[0], -3)/10,
             }
-    canvas = toyplot.Canvas(width=800, height=600)
+
+    # plot data
+    canvas = toyplot.Canvas(width=1000, height=800)
     for index, (fname, data) in enumerate(datasets.items()):
 
         axes = canvas.cartesian(
-            label=f"{sample_name} - {fname}",
+            label=f"{sample_name} - {fname} {extra or ''}",
             xlabel="HMM Position",
             ylabel="Depth",
             grid=(len(datasets), 2, index)
-        )
-
+            )
         # toyplot
-        axes.fill(data['a2m_df']['HMM_Position'], data['a2m_df']['Coverage Depth'])
-        axes.x.ticks.locator = toyplot.locator.Explicit(np.arange(0, data['genomesize'], data['interval']).tolist()) # type: ignore
+        depth = axes.fill(data['a2m_df']['HMM_Position'], data['a2m_df']['Coverage Depth'], title="Depth")
+        masked = axes.fill(data['a2m_df']['HMM_Position'], data['a2m_df']['Masked Regions'], color = "orange", title="Masked Regions")
+        gaps = axes.fill(data['a2m_df']['HMM_Position'], data['a2m_df']['Gaps'], color = "red", title = "Regions without Coverage")
+        # ticks
+        axes.x.ticks.locator = toyplot.locator.Explicit( # type: ignore
+            np.arange(0, data['genomesize_upper'], data['interval']).tolist()
+            )
         axes.x.ticks.show = True
         axes.y.ticks.show = True
-        label_style = {"text-anchor":"start", "-toyplot-anchor-shift":"2.5px"}
+        label_style = {"text-anchor":"start", "-toyplot-anchor-shift":"2px", "font-size" : 10}
+
+        # display mask cutoff
+        axes.hlines(20, style={"stroke":"blue", "stroke-dasharray":"2, 2"})
+        axes.text(genome_size/2, 25, "Cutoff Masking", color = "black", style={"font-size" : 10}) # type: ignore
 
         # add vertical lines with labels
-        line = axes.vlines(data['vcf']['HMM_Position'])
-        for _, row in data['vcf'].iterrows():
+        axes.vlines(data['vcf']['HMM_Position'], title="Ambig Bases")
+        for index, row in data['vcf'].iterrows():
             axes.text(
                 row['HMM_Position'],
-                data['covmax'] + 10,
+                data['covmax'] + random.randint(1,10),
                 row['Alternative'],
                 style=label_style,
-                color="red"
+                color="red",
+                title="Ambiguous Bases"
                 )
+        # legend
+        canvas.legend(
+            [("Gaps", gaps),
+             ("Masked Regions", masked)],
+            corner=("top-right", 50, 100, 35),
+        )
 
-    if encoding == "pdf":
-        pdf.render(canvas, outfile)
-    if encoding == "png":
-        png.render(canvas, outfile)
-    if encoding == "svg":
-        svg.render(canvas, outfile)
-    if encoding == "html":
-        html.render(canvas, outfile)
+    eval(encoding).render(canvas, str(outfile.resolve()))
 
-    print(f"[green] Plotting complete - {len(datasets)} graphs in {outfile} [/green]")
+    # ammend json
+    irma_data[sample_name]['depth_plots'].update({encoding : str(outfile.resolve())})
+
+    with open(json_out, "w", encoding="utf-8") as handle:
+        json.dump(irma_data, handle, ensure_ascii=False, indent=4)
+
+    print(f"[green]Plotting complete - {len(datasets)} graphs in {outfile.resolve()} [/green]")
 
 
 @app.command(no_args_is_help=True,
@@ -330,6 +382,7 @@ def mutations(
        ..., "-c", "--a2m-cov", help="The *coverage.a2m.txt (tsv) file from IRMA output"
     ),
     outfile: Path = typer.Option(..., "-o", "--outfile", help="Outfile (tsv)"),
+    json_out: Path = typer.Option(None, "--json-out", help="Amended json file output"),
 ):
     """
     !Not Implemented! Get mutations of interest from irma alleles.txt and vcf file.
@@ -389,9 +442,47 @@ def mutations(
     df = df[df['HMM_Position'].isin(positions)]
     df.to_csv(outfile, index=False, sep="\t")
 
-    # if df.empty:
-    #     raise typer.BadParameter("Empty Dataframe - Positions specified are not in Alleles file.\nThis occurs if the assembly is missing those positions")
-    # print(df)
+
+@app.command(no_args_is_help=True)
+def stats(
+    json_file: Path = typer.Option(
+        ..., "-j", "--json", help="irmakit.py parse output"
+    ),
+    json_out: Path = typer.Option(
+        ..., "--json-out", help="Amended json file output"
+    ),
+    ):
+    '''
+    Per run (irma) statistics. Json input is modified inplace. 
+    '''
+    with open(json_file, "r", encoding="utf-8") as handle:
+        irma_data = json.loads(handle.read())
+        sample_name = next(iter(irma_data))
+        read_counts = pd.read_csv(irma_data[sample_name]['readcounts'], sep="\t", index_col="Record")
+
+    mean_depth = {}
+    num_gaps = {}
+
+    for key in irma_data[sample_name]['a2m'].keys():
+        dat = pd.read_csv(irma_data[sample_name]['coverage'][key], sep="\t")
+        mean_depth[key] = round(dat.loc[:, "Coverage Depth"].mean(), 2)
+        num_gaps[key] = int(dat.loc[:, 'Alignment_State'].value_counts()['D'])
+
+    irma_data[sample_name]['statistics'].update(
+        {
+            "read_counts" : {
+                "initial" : int(read_counts.loc['1-initial', 'Reads']), # type: ignore
+                "passqc" : int(read_counts.loc['2-passQC', 'Reads']), # type: ignore
+                "match" : int(read_counts.loc['3-match', 'Reads']), # type: ignore
+                "altmatch" : int(read_counts.loc['3-altmatch', 'Reads']), # type: ignore
+                "patterm_match" : read_counts.iloc[9:, 1].to_dict(),
+                },
+            "mean_depth" : mean_depth,
+            "num_gaps" : num_gaps,
+        }
+    )
+    with open(json_out, "w", encoding="utf-8") as handle:
+        json.dump(irma_data, handle, ensure_ascii=False, indent=4)
 
 if __name__ == "__main__":
     app()

@@ -1,34 +1,25 @@
-rule makeBedForMasking:
+rule mask_fasta:
     input:
         irmastatus = rules.irma.output.status,
-        irmadir = OUTDIR / "irma" / "{sample}/",
+        json = rules.irma_parse.output.json
     output:
-        bed = OUTDIR / "mask" / "{sample}" / "{sample}.mask.bed",
-        status = OUTDIR / "status" / "mask_{sample}.txt",
+        status = WORKDIR / "status" / "mask_{sample}.txt",
+        json = WORKDIR / "irma" / "{sample}" / "json" / "{sample}.mask.json",
     params:
-        mincov = 20
-    run:
-        irma_files = get_irma_files(input['irmadir'])
-        make_bed_for_masking(infile=irma_files['coverage'][0],
-                             chromCol=0,
-                             depthCol=6,
-                             outfile=output['bed'],
-                             min_cov=params.mincov)
-        with open(output['status'], "w") as file:
-            file.write("")
+        sample_name = lambda w: w.sample,
+        outdir = lambda wildcards: WORKDIR / "irma" / wildcards.sample / "masked/",
+        min_cov = config['maskdepth'] 
+    threads: 1
+    conda: "../envs/irmakit.yaml"
+    params:
+        IRMA = WORKDIR
+    shell:"""
+    python scripts/irmakit.py maskfasta \
+    --json {input.json} \
+    --sample-name {params.sample_name} \
+    --output-dir {params.outdir} \
+    --min-cov {params.min_cov} \
+    --json-out {output.json}
 
-# rule maskFasta:
-#     input:
-#         bed = rules.makeBedForMasking.output.bed
-#     output:
-#         maskedfasta = OUTDIR / "mask" / "{sample}" / "{sample}.masked.fasta"
-#     threads: 1
-#     conda: ""
-#     params:
-#         IRMA = OUTDIR
-#     shell:"""
-#     bedtools maskfasta \
-#     fi {input.fasta} \
-#     -bed {input.bed} \
-#     -fo {output.maskedfasta}
-#     """
+    touch {output.status}
+    """

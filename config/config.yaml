@@ -31,6 +31,10 @@ pattern_pgm : /{sample_name}.fastq.gz
 # set to 0 to disable masking
 maskdepth: 20
 
+# plotting 
+# [svg, html, png, pdf]
+encoding: "svg"
+
 # FLU Only
 # [True, False]
 # True = ha, na, mp

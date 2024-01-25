@@ -1,16 +1,19 @@
 rule irma:
     message: "IRMA is running for {wildcards.sample}"
     input:
-        single = rules.time.output.filtered
+        single = rules.trim.output.filtered
     output:
-        folder = directory(OUTDIR / "irma/{sample}/"),
-        status = OUTDIR / "status/irma_{sample}.txt"
+        status = WORKDIR / "status" / "irma_{sample}.txt"
     params:
+        irma_dir = WORKDIR / "irma" / "{sample}/",
         run_module = lambda wildcards: IRMAMODULE,
-    log: OUTDIR / "logs/irma_{sample}.txt"
+    log: WORKDIR / "logs/irma_{sample}.txt"
     conda: "../envs/irma.yaml"
     threads: 10
     shell:"""
-    IRMA {params.run_module} {input.single} {output.folder} 1> {log}
+    mkdir -p {params.irma_dir}
+
+    IRMA {params.run_module} {input.single} {params.irma_dir} 1> {log}
+    
     touch {output.status}
     """

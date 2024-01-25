@@ -4,20 +4,20 @@ rule trim:
         r1 = INDIR / "{sample}_L001_R1_001.fastq.gz",
         r2 = INDIR / "{sample}_L001_R2_001.fastq.gz",
     output:
-        r1 = OUTDIR / "trim_tile" / "{sample}.R1.fastq.gz",
-        r2 = OUTDIR / "trim_tile" / "{sample}.R2.fastq.gz",
-        status = OUTDIR / "status" / "trim_{sample}.txt",
-        summary = OUTDIR / "trim_tile" / "{sample}.ptrimmer.summary.txt",
+        r1 = WORKDIR / "trim_tile" / "{sample}.R1.fastq.gz",
+        r2 = WORKDIR / "trim_tile" / "{sample}.R2.fastq.gz",
+        status = WORKDIR / "status" / "trim_{sample}.txt",
+        summary = WORKDIR / "trim_tile" / "{sample}.ptrimmer.summary.txt",
     params:
         adapters = f"resources/adapters/{ORG}_tiled.fa",
         minqual = 15,
         kmer = 8,
         mismatch = 1,
-        r1tmp = OUTDIR / "trim_tile" / "{sample}.R1.fastq",
-        r2tmp = OUTDIR / "trim_tile" / "{sample}.R2.fastq",
+        r1tmp = WORKDIR / "trim_tile" / "{sample}.R1.fastq",
+        r2tmp = WORKDIR / "trim_tile" / "{sample}.R2.fastq",
     threads: 1
     conda: "../envs/tiled.yaml"
-    log: OUTDIR / "logs" / "tiled_{sample}.txt"
+    log: WORKDIR / "logs" / "tiled_{sample}.txt"
     shell:"""
     ptrimmer \
     --keep \

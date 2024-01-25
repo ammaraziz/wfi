@@ -3,14 +3,14 @@ rule trim:
     input:
         single = INDIR / "{sample}.fastq.gz",
     output:
-        filtered = OUTDIR / "qualtrim" / "{sample}.fastq.gz",
-        html = OUTDIR / "qualtrimp" / "{sample}.html",
-        json = OUTDIR / "qualtrimp" / "{sample}.json",
-        status = OUTDIR / "status" / "filter_trim{sample}.txt",
+        filtered = WORKDIR / "qc" / "{sample}.fastq.gz",
+        html = WORKDIR / "qc" / "{sample}.html",
+        json = WORKDIR / "qc" / "{sample}.json",
+        status = WORKDIR / "status" / "filter_trim{sample}.txt",
     params:
         title = lambda wildcards: wildcards.sample,
     threads: 4
-    log: OUTDIR / "logs/trimp_{sample}.txt"
+    log: WORKDIR / "logs/trimp_{sample}.txt"
     conda: "../envs/irma.yaml"
     shell:"""
     fastp \

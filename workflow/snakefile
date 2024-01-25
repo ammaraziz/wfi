@@ -7,6 +7,7 @@ configfile: "config/config.yaml"
 
 INDIR = Path(config["input_dir"])
 OUTDIR = Path(config["output_dir"])
+WORKDIR =  Path(config["output_dir"]) / "workdir"
 ORG = config["organism"].upper()
 PLATFORM = config["technology"].lower()
 SECONDARY = config["secondary_assembly"]
@@ -82,11 +83,13 @@ onerror:
 ##### Target rules #####
 rule all:
     input:
-        expand(OUTDIR / "status" / "fastp_{sample}.txt", sample = SAMPLES),
-        expand(OUTDIR / "status" / "irma_{sample}.txt", sample = SAMPLES),
-        expand(OUTDIR / "status" / "mask_{sample}.txt", sample = SAMPLES),
-        OUTDIR / "status/subtyping_complete.txt",
-        OUTDIR / "status/plotting_complete.txt",
+        expand(WORKDIR / "status" / "fastp_{sample}.txt", sample = SAMPLES),
+        expand(WORKDIR / "status" / "irma_{sample}.txt", sample = SAMPLES),
+        expand(WORKDIR / "status" / "parse_{sample}.txt", sample = SAMPLES),
+        expand(WORKDIR / "status" / "mask_{sample}.txt", sample = SAMPLES),
+        expand(WORKDIR / "status" / "plot_{sample}.txt", sample = SAMPLES),
+        #OUTDIR / "status/subtyping_complete.txt",
+        #OUTDIR / "status/plotting_complete.txt",
 
 ##### Modules #####
 #include: "rules/ref.smk"
@@ -99,5 +102,6 @@ if RUNMODE == 'paired':
     if TRIMMODE == "tiled":
         include: "rules/trim_tiled.smk"
     include: "rules/irma_pe.smk"
+include: "rules/irma_parse.smk"
 include: "rules/mask.smk"
 include: "rules/report.smk"
