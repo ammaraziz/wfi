@@ -8,6 +8,7 @@ from pathlib import Path
 from collections import defaultdict
 import random
 
+import click
 import typer
 from rich import print
 import toyplot
@@ -386,7 +387,6 @@ def mutations(
 ):
     """
     !Not Implemented! Get mutations of interest from irma alleles.txt and vcf file.
-    Positions
     """
     if positions and positions_file:
         raise typer.BadParameter(
@@ -484,5 +484,18 @@ def stats(
     with open(json_out, "w", encoding="utf-8") as handle:
         json.dump(irma_data, handle, ensure_ascii=False, indent=4)
 
+
+@app.callback()
+def callback():
+    """
+    Typer app, including Click subapp
+    """
+import prepare
+
+typer_click_object = typer.main.get_command(app)
+
+typer_click_object.add_command(prepare.prepare)
+
+
 if __name__ == "__main__":
-    app()
+    typer_click_object()

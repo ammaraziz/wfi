@@ -105,7 +105,7 @@ def print_examples():
     sys.exit(0)
 
 
-@click.command(epilog='Created by rpetit3 https://github.com/bactopia/bactopia-py then butchered by Ammar Aziz.')
+@click.command(epilog='Modified from https://github.com/bactopia/bactopia-py and butchered by Ammar Aziz.', no_args_is_help=True)
 @click.option(
     "--path", "-p", required=True, help="Directory where FASTQ files are stored"
 )
