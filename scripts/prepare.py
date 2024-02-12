@@ -105,7 +105,8 @@ def print_examples():
     sys.exit(0)
 
 
-@click.command(epilog='Modified from https://github.com/bactopia/bactopia-py and butchered by Ammar Aziz.', no_args_is_help=True)
+@click.command(epilog='Modified from https://github.com/bactopia/bactopia-py and butchered by Ammar Aziz.', 
+               no_args_is_help=True)
 @click.option(
     "--path", "-p", required=True, help="Directory where FASTQ files are stored"
 )
@@ -182,7 +183,7 @@ def prepare(
 ):
     """
     \b
-    Create a 'file of filenames' (FOFN) of samples for pipeline input
+    Create a 'file of filenames' (FOFN) of samples for pipeline input.
     """
     # Setup logs
     logging.basicConfig(
@@ -360,7 +361,7 @@ def main():
     elif "--examples" in sys.argv:
         print_examples()
     else:
-        prepare()
+        prepare() # type: ignore
 
 
 if __name__ == "__main__":

@@ -32,11 +32,7 @@ def getSegment(header: str) -> int:
         "A2": 1,
         "B": 1,
     }
-    try:
-        seg = genes[header.upper()]
-    except:
-        raise ValueError("Unknown segment. Check input: " + str(header))
-    return seg
+    return(genes[header.upper()])
 
 
 def getSamples(inputFolder: str) -> list:
@@ -101,7 +97,7 @@ def combine_fasta(directory, subset, outname="all.fasta"):
     return outpath
 
 
-def get_subtype(sampleDirectory, org: str) -> list:
+def get_subtype(sampleDirectory, org: str):
     """
     get subtype from output of IRMA file by parsing fasta file names
     """
@@ -144,14 +140,14 @@ def makeSubtypeFolderStruct(outputDir: str, subtypeList: list) -> Path:
     return Path(outputDir).joinpath(subtypeList[0], subtypeList[1] + subtypeList[2])
 
 
-def renameFastaRecord(fastaRecordId: str, sampleName: str) -> str:
-    """
-    rename fasta file from IRMA output (eg A_HA_H3.fasta) to [Isolate].[segement_number]
-    """
-    segment = getSegment(fastaRecordId.split("_")[1])
-    fastaRecordId = sampleName + "." + str(segment)
+    def renameFastaRecord(fastaRecordId: str, sampleName: str) -> str:
+        """
+        rename fasta file from IRMA output (eg A_HA_H3.fasta) to [Isolate].[segement_number]
+        """
+        segment = getSegment(fastaRecordId.split("_")[1])
+        fastaRecordId = sampleName + "." + str(segment)
 
-    return fastaRecordId
+        return fastaRecordId
 
 
 def register_arguments():

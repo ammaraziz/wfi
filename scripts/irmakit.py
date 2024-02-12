@@ -8,9 +8,12 @@ from pathlib import Path
 from collections import defaultdict
 import random
 
-import click
+import prepare
+
+from Bio import SeqIO
+
 import typer
-from rich import print
+from rich import print as pprint
 import toyplot
 import pandas as pd
 import numpy as np
@@ -24,22 +27,22 @@ app = typer.Typer(
     rich_markup_mode="rich",
 )
 
-
 @app.command(no_args_is_help=True)
 def parse(
-    irmadir: Path = typer.Option(
-        ..., "-i", "--irma-dir", help="IRMA output directory to parse"
-    ),
+    irmadir: Path = typer.Option(..., "-i", "--irma-dir", help="IRMA output directory to parse"),
     jsonout: Path = typer.Option(..., "-j", "--json", help="json output path and name"),
     samplename: str = typer.Option(
         ..., "-s", "--sample-name", help="Sample name - included in the output json"
     ),
+    organism: str = typer.Option(
+        ..., "--organism", help="IRMA Module / Organism [RSV, FLU, FLU_AD, EBOLA, COV]"
+    )
 ):
     """
-    Parse IRMA output - return json
+    Parse IRMA output - return json.
     """
 
-    def get_irma_files(irmadir: Path, sample_name: str) -> dict:
+    def get_irma_files(irmadir: Path, samplename: str) -> dict:
         """
         Get IRMA output files of interest
         returns dict with absolute path
@@ -52,6 +55,7 @@ def parse(
 
         d = defaultdict()
         p = irmadir.resolve()
+
         # irma/sampleName/ - multiple files are possible
         d["vcf"] = {x.stem: str(x) for x in p.glob("*.vcf")}
         d["bam"] = {x.stem: str(x) for x in p.glob("*.bam")}
@@ -62,15 +66,17 @@ def parse(
         d["readcounts"] = (
             [str(p / "tables" / "READ_COUNTS.txt")]
             if (p / "tables" / "READ_COUNTS.txt").exists()
-            else []
-        )[0]
+            else [])[0]
+
         # multiple possible
         d["coverage"] = {x.stem.replace("-coverage.a2m", ""): str(x) for x in (p / "tables").glob("*coverage.a2m.txt")}
+
         # single instances only
         d["insertions"] = [str(x) for x in (p / "tables").glob("*insertions.txt")][0]
         d["deletions"] = [str(x) for x in (p / "tables").glob("*deletions.txt")][0]
         d["variants"] = [str(x) for x in (p / "tables").glob("*variants.txt")][0]
         d["alleles"] = [str(x) for x in (p / "tables").glob("*allAlleles.txt")][0]
+
         # other
         d["secondary"] = {x.stem: str(x) for x in (p / "secondary").glob("*.fa")}
         d["amended"] = {
@@ -78,6 +84,7 @@ def parse(
             for x in (p / "amended_consensus").glob("*")
         }
 
+        # info
         d["runinfo"] = (
             str(p / "logs" / "run_info.txt")
             if (p / "logs" / "run_info.txt").exists()
@@ -94,14 +101,93 @@ def parse(
         else:
             d["status"] = "fail"
 
-        final = {sample_name: d}
-        return final
+        return {samplename: d}
 
-    parsed = get_irma_files(irmadir=irmadir, sample_name=samplename)
+    # genotype
+    def genotype(a2m: dict, organism: str) -> tuple[str, str]:
+        '''
+        Extract subtype from IRMA named output of a2m
+        return two values:
+            - species (RSV, FLUA, FLUB... etc, EBOLA)
+            - subtype if applicable, eg for FLU HxNx
+        '''
+
+        # for RSV items is ['org', 'subtype']
+        # for FLU HA/NA items is ['org', 'gene', 'subtype']
+        # for FLU other genes ['org', 'gene']
+        # for all others ['org']
+        if organism in ["FLU", "FLU-AD"]:
+            FLU = None
+            HA = None
+            NA = None
+
+            for name in a2m.keys():
+                parts = sorted(name.split("_"))
+
+                if parts[1] in "HA": # envlope genes
+                    HA = f"H{parts[2]}"
+                    FLU = f"FLU{parts[0]}"
+                if parts[1] in "NA": # envlope genes
+                    NA = f"N{parts[2]}"
+                    FLU = f"FLU{parts[0]}"
+                if parts[1] in ["PB2","PB1","PA","NP","MP","NS"]:
+                    FLU = f"FLU{parts[0]}"
+
+            if HA is None:
+                HA = "Hx"
+            if NA is None:
+                NA = "Nx"
+            if FLU is None: # catch all, shoudn't happen
+                FLU = "FLUx"
+
+            return FLU, f"{HA}{NA}"
+        for k in a2m.keys():
+            parts = k.split("_")
+            if organism == "RSV":
+                ORG = parts[0].upper()
+                TYPE = parts[1]
+                return ORG, TYPE
+
+        # all other organisms that do not have subtypes
+        parts = list(a2m.keys())[0].split("_")
+        ORG = parts[0].upper()
+        TYPE = "NA"
+        return ORG, TYPE
+
+    parsed = get_irma_files(irmadir=irmadir, samplename=samplename)
+    org, gentype = genotype(parsed[samplename]['a2m'], organism=organism)
+    parsed[samplename]['organism'] = org
+    parsed[samplename]['type'] = gentype
 
     with open(jsonout, "w", encoding="utf-8") as file:
         json.dump(parsed, file, ensure_ascii=False, indent=4)
 
+@app.command(no_args_is_help=True, epilog="[yellow]Note: .plot.json is used[/yellow]")
+def cjson(
+    pipeline_outdir: Path = typer.Option(
+        ..., "--pipeline-outdir", help="wfi output directory containing /irma/[sampleName].json"
+    ),
+    pattern: str = typer.Option(
+        ".plot.json", "--pattern", help="pattern to match json output to merge. Do not include regex pattern."
+    ),
+    cjson_out: Path = typer.Option(
+        ..., "--json-out", help="Output combined Json file"
+    ),
+    ):
+    '''
+    Combine the [sampleName].json of all samples in a run.
+    '''
+    jfiles = [x for x in pipeline_outdir.glob(f"**/*{pattern}")]
+
+    cjson = {}
+    for j in jfiles:
+        with open(j, "r") as handle:
+            temp_json = json.loads(handle.read())
+            cjson = cjson | temp_json
+
+    with open(cjson_out, "w") as handle:
+        json.dump(cjson, handle, ensure_ascii=False, indent=4)
+        pprint(f"[green]Combined json written to: {cjson_out.absolute()}[/green]")
 
 @app.command(
         no_args_is_help=True,
@@ -135,7 +221,7 @@ def maskfasta(
     ),
 ):
     """
-    Mask low coverage region using `bedtools maskfasta`
+    Mask low coverage region using `bedtools maskfasta`.
 
     irma settings: chromCol = 0 depthCol = 6
     """
@@ -201,7 +287,7 @@ def maskfasta(
         if not masked_fasta.exists():
             raise typer.BadParameter("Error - no output was detected. Check inputs.")
 
-    print(f"[green]Masking complete: {str(masked_fasta.resolve().parent)}[/green]") # type: ignore
+    pprint(f"[green]Masking complete: {str(masked_fasta.resolve().parent)}[/green]") # type: ignore
 
 @app.command(no_args_is_help=True)
 def plot(
@@ -223,7 +309,7 @@ def plot(
     ),
 ):
     """
-    Plot depth histograph annotated with potential ambiguous bases
+    Plot depth histograph annotated with potential ambiguous bases.
     """
 
     if encoding not in ['svg', 'pdf', 'png', 'html']:
@@ -358,7 +444,7 @@ def plot(
     with open(json_out, "w", encoding="utf-8") as handle:
         json.dump(irma_data, handle, ensure_ascii=False, indent=4)
 
-    print(f"[green]Plotting complete - {len(datasets)} graphs in {outfile.resolve()} [/green]")
+        pprint(f"[green]Plotting complete - {len(datasets)} graphs in {outfile.resolve()} [/green]")
 
 
 @app.command(no_args_is_help=True,
@@ -484,18 +570,67 @@ def stats(
     with open(json_out, "w", encoding="utf-8") as handle:
         json.dump(irma_data, handle, ensure_ascii=False, indent=4)
 
+@app.command(no_args_is_help=True,
+        epilog="[yellow]Note: Combine is only for segemented organisms such as FLU")
+def crs(
+    cjson_file: Path = typer.Option(..., "--cjson", help="Combined json file."),
+    outdir: Path = typer.Option(..., "--outdir", help="output directory"),
+    ):
+    """
+    Combine -> Rename -> Sort IRMA output
+    """
+
+    segements = {
+        # Flu A/B
+        "PB2": "1",
+        "PB1": "2",
+        "PA": "3",
+        "HA": "4",
+        "NP": "5",
+        "NA": "6",
+        "MP": "7",
+        "NS": "8",
+        # Flu C
+        "HE": "4",
+        "P3": "3",
+        # RSV
+        "A1": "A1",
+        "A2": "A2",
+        "A3": "A2",
+        "B": "B",
+    }
+
+    with open(cjson_file, "r", encoding="utf-8") as handle:
+        cjson = json.loads(handle.read())
+
+    # read in all sequences into a dict of lists for each IRMA run
+    sequences = defaultdict(list)
+    for sample,contents in cjson.items():
+        sequences[sample] = []
+        for _,p in contents['a2m'].items():
+            for record in SeqIO.parse(p, "fasta"):
+                sequences[sample].append(record)
+
+    # for each sample, rename + combine sequences
+    for sample,contents in sequences.items():
+        for record in contents:
+            # rename
+            seg = segements[record.id.upper().split("_")[1]]
+            record.id = f"{sample}.{seg}" #segements[id.split("_")[1]
+            record.description = ""
+        # combine
+        with open(outdir / f"{sample}.fasta", "w", encoding="utf-8") as handle:
+            SeqIO.write(contents, handle, "fasta")
 
 @app.callback()
 def callback():
     """
     Typer app, including Click subapp
     """
-import prepare
 
 typer_click_object = typer.main.get_command(app)
 
-typer_click_object.add_command(prepare.prepare)
-
+typer_click_object.add_command(prepare.prepare) # type: ignore
 
 if __name__ == "__main__":
     typer_click_object()
