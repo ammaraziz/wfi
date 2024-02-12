@@ -53,7 +53,11 @@ else:
     raise ValueError("Check config file for 'organism' setting. Options are: FLU or RSV")
 
 try:
-    IRMAMODULE = get_irma_module_config(org = ORG, technology = PLATFORM, secondary = SECONDARY)
+    IRMAMODULE = get_irma_module_config(
+        org=ORG,
+        technology=PLATFORM,
+        secondary=SECONDARY
+        )
 except Exception as e:
     print(
         f'Settings not possible. IRMA module does not fit critera. Check config for options:\n'
