@@ -1,5 +1,0 @@
-channels:
-  - bioconda
-  - conda-forge
-dependencies:
-  - nextclade = 2.14.0
