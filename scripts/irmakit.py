@@ -17,7 +17,7 @@ from rich import print as pprint
 import toyplot
 import pandas as pd
 import numpy as np
-from toyplot import svg, pdf, png, html
+from toyplot import svg, pdf, png, html # type: ignore
 
 app = typer.Typer(
     help="irmakit - helper functions for parsing irma output",
@@ -181,11 +181,11 @@ def cjson(
 
     cjson = {}
     for j in jfiles:
-        with open(j, "r") as handle:
+        with open(j, "r", encoding="utf-8") as handle:
             temp_json = json.loads(handle.read())
             cjson = cjson | temp_json
 
-    with open(cjson_out, "w") as handle:
+    with open(cjson_out, "w", encoding="utf-8") as handle:
         json.dump(cjson, handle, ensure_ascii=False, indent=4)
         pprint(f"[green]Combined json written to: {cjson_out.absolute()}[/green]")
 
@@ -601,11 +601,11 @@ def crs(
     }
 
     with open(cjson_file, "r", encoding="utf-8") as handle:
-        cjson = json.loads(handle.read())
+        cjson_data = json.loads(handle.read())
 
     # read in all sequences into a dict of lists for each IRMA run
     sequences = defaultdict(list)
-    for sample,contents in cjson.items():
+    for sample,contents in cjson_data.items():
         sequences[sample] = []
         for _,p in contents['a2m'].items():
             for record in SeqIO.parse(p, "fasta"):
