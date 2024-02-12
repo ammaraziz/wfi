@@ -9,7 +9,7 @@ rule irma:
         run_module = lambda wildcards: IRMAMODULE,
     log: WORKDIR / "logs/irma_{sample}.txt"
     conda: "../envs/irma.yaml"
-    threads: 10
+    threads: config['threads']['irma']
     shell:"""
     mkdir -p {params.irma_dir}
 

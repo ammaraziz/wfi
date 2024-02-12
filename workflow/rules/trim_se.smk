@@ -10,7 +10,7 @@ rule trim:
     params:
         title = lambda wildcards: wildcards.sample,
     threads: 4
-    log: WORKDIR / "logs/trimp_{sample}.txt"
+    log: WORKDIR / "logs" / "trimp_{sample}.txt"
     conda: "../envs/irma.yaml"
     shell:"""
     fastp \
