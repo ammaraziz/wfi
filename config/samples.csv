@@ -1,0 +1,2 @@
+#sample,runtype,r1,r2
+RSV321_S1,paired-end,/path/to/r1.fastq.gz,/path/to/r2.fastq.gz
